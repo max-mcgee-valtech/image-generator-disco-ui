@@ -35,6 +35,10 @@ export default function Home() {
     <Layout>
       <div className="container">
         <Head>
+          <meta
+            http-equiv="Content-Security-Policy"
+            content="upgrade-insecure-requests"
+          />
           <title>Create Next App</title>
           <link rel="icon" href="/favicon.ico" />
         </Head>
