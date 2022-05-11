@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Button, Stack, Grid, Box } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { FormControl } from "@mui/material";
 
 import Head from "next/head";
 import Layout from "../components/layout";
@@ -12,6 +10,25 @@ export default function Home() {
 
   const handleTextInputChange = (event) => {
     setTextInput(event.target.value);
+  };
+
+  const handleSubmit = () => {
+    console.log(textInput);
+    (async () => {
+      const rawResponse = await fetch("http://54.193.32.57:5000/handle_data", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          textPrompt: textInput,
+        }),
+      });
+      const content = await rawResponse.json();
+
+      console.log(content);
+    })();
   };
 
   return (
@@ -49,7 +66,7 @@ export default function Home() {
                     variant={"contained"}
                     color={"primary"}
                     onClick={() => {
-                      alert(textInput);
+                      handleSubmit();
                     }}
                   >
                     Submit
