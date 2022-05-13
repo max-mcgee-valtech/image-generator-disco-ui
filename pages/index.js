@@ -15,9 +15,11 @@ export default function Home() {
   const handleSubmit = () => {
     console.log(textInput);
     (async () => {
-      const rawResponse = await fetch("http://54.193.32.57:5000/handle_data", {
+      const rawResponse = await fetch("http://13.56.154.163:5000/handle_data", {
         method: "POST",
         headers: {
+          "Bypass-Tunnel-Reminder": "go",
+          mode: "no-cors",
           Accept: "application/json",
           "Content-Type": "application/json",
         },
