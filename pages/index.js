@@ -1,11 +1,46 @@
 import React, { useState } from "react";
-import { Button, Stack, Grid, Box } from "@mui/material";
+import cloudinary from "cloudinary";
+import {
+  Button,
+  Stack,
+  Grid,
+  Box,
+  ImageListItem,
+  ImageList,
+} from "@mui/material";
 
 import Head from "next/head";
 import Layout from "../components/layout";
 import TextField from "@mui/material/TextField";
 
-export default function Home() {
+export async function getServerSideProps(context) {
+  let image;
+  cloudinary.config({
+    cloud_name: "detzng4ks",
+    api_key: process.env.API_KEY_CLOUDINARY,
+    api_secret: process.env.CLOUDINARY_SECRET,
+  });
+
+  const images = await cloudinary.v2.search
+    .expression("folder=disco-diffusion-active-tests")
+    .sort_by("uploaded_at", "desc")
+    .with_field("context")
+    .execute()
+    .then((result) => {
+      console.log("RES");
+      return {
+        images: result.resources,
+      };
+    });
+
+  return {
+    props: { images }, // will be passed to the page component as props
+  };
+}
+
+export default function Home(props) {
+  const images = props.images.images.slice(0, 9);
+  console.log(images);
   const [textInput, setTextInput] = useState("");
 
   const handleTextInputChange = (event) => {
@@ -76,6 +111,22 @@ export default function Home() {
                   </Button>
                 </Grid>
               </Grid>
+              <ImageList
+                gap={10}
+                sx={{ width: 500, height: 500 }}
+                cols={3}
+                rowHeight={164}
+              >
+                {images.map((item) => (
+                  <ImageListItem key={item.url}>
+                    <img
+                      src={`${item.url}?w=164&h=164&fit=crop&auto=format`}
+                      srcSet={`${item.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                      loading="lazy"
+                    />
+                  </ImageListItem>
+                ))}
+              </ImageList>
             </Box>
           </div>
         </main>
