@@ -12,25 +12,22 @@ export default function Home() {
     setTextInput(event.target.value);
   };
 
-  const handleSubmit = () => {
-    console.log(textInput);
-    (async () => {
-      const rawResponse = await fetch("http://13.56.154.163:5000/handle_data", {
-        method: "POST",
-        headers: {
-          "Bypass-Tunnel-Reminder": "go",
-          mode: "no-cors",
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          textPrompt: textInput,
-        }),
-      });
-      const content = await rawResponse.json();
+  const handleSubmit = async () => {
+    const response = await fetch("/api/generate-image-disco", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ textPrompt: textInput }),
+    });
 
-      console.log(content);
-    })();
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    setTextInput("");
   };
 
   return (
@@ -77,13 +74,6 @@ export default function Home() {
                   >
                     Submit
                   </Button>
-                </Grid>
-                <Grid item>
-                  <div>
-                    Data:
-                    <br />
-                    {textInput}
-                  </div>
                 </Grid>
               </Grid>
             </Box>
