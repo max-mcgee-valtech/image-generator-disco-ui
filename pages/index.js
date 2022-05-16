@@ -14,7 +14,6 @@ import Layout from "../components/layout";
 import TextField from "@mui/material/TextField";
 
 export async function getServerSideProps(context) {
-  let image;
   cloudinary.config({
     cloud_name: "detzng4ks",
     api_key: process.env.API_KEY_CLOUDINARY,
@@ -40,7 +39,6 @@ export async function getServerSideProps(context) {
 
 export default function Home(props) {
   const images = props.images.images.slice(0, 9);
-  console.log(images);
   const [textInput, setTextInput] = useState("");
 
   const handleTextInputChange = (event) => {
