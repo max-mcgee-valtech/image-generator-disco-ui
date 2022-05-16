@@ -48,7 +48,8 @@ export default function Home(props) {
   };
 
   const handleSubmit = async () => {
-    const response = await fetch("/api/generate-image-disco", {
+    console.log("sending req");
+    fetch("/api/generate-image-disco", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -57,11 +58,10 @@ export default function Home(props) {
       body: JSON.stringify({ textPrompt: textInput }),
     });
 
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
-    }
+    // if (!response.ok) {
+    //   throw new Error(`Error: ${response.status}`);
+    // }
 
-    const data = await response.json();
     setTextInput("");
   };
 
@@ -103,9 +103,7 @@ export default function Home(props) {
                     type={"submit"}
                     variant={"contained"}
                     color={"primary"}
-                    onClick={() => {
-                      handleSubmit();
-                    }}
+                    onClick={handleSubmit}
                   >
                     Submit
                   </Button>
