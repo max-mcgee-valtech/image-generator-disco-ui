@@ -4,7 +4,7 @@
 
 datasource db {
   provider = "mongodb"
-  url      = "mongodb+srv://max-mcgee-valtech:valtech22@cluster0.ma22z.mongodb.net/Cluster1?sslmode=require&sslcert=/etc/pki/tls/certs/ca-bundle.crt"  
+  url      = "mongodb+srv://max-mcgee-valtech:valtech22@cluster0.ma22z.mongodb.net/Cluster1"  
 }
 
 generator client {
