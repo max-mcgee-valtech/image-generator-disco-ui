@@ -7,9 +7,15 @@ datasource db {
   url      = "mongodb+srv://max-mcgee-valtech:valtech22@cluster0.ma22z.mongodb.net/Cluster1?sslmode=require&sslcert=/etc/pki/tls/certs/ca-bundle.crt"  
 }
 
+
+   
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["mongoDb"]
 }
+
+
+
 
 model Image {
   id       String    @id @default(auto()) @map("_id") @db.ObjectId
