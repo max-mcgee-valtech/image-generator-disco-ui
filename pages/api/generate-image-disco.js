@@ -1,6 +1,6 @@
 import cloudinary from "cloudinary";
 import { uuid } from "uuidv4";
-import { PrismaClient } from "@prisma/client";
+// import { PrismaClient } from "@prisma/client";
 
 export default async function handler(req, res) {
   const textPrompt = req.body.textPrompt;
