@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import cloudinary from "cloudinary";
 import {
   Button,
@@ -7,11 +7,29 @@ import {
   Box,
   ImageListItem,
   ImageList,
+  ImageListItemBar,
 } from "@mui/material";
+import styled from "styled-components";
 
 import Head from "next/head";
 import Layout from "../components/layout";
 import TextField from "@mui/material/TextField";
+
+const MainImageContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+  @media screen and (max-width: 600px) {
+    padding: 1rem 0;
+  }
+`;
+
+const MainImage = styled.img`
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  border-radius: 6px;
+`;
 
 export async function getServerSideProps(context) {
   cloudinary.config({
@@ -26,7 +44,6 @@ export async function getServerSideProps(context) {
     .with_field("context")
     .execute()
     .then((result) => {
-      console.log("RES");
       return {
         images: result.resources,
       };
@@ -38,7 +55,8 @@ export async function getServerSideProps(context) {
 }
 
 export default function Home(props) {
-  const images = props.images.images.slice(0, 9);
+  const images = props.images.images.slice(0, 10);
+  const [imagesFromDB, setImagesFromDB] = useState("");
   const [textInput, setTextInput] = useState("");
 
   const handleTextInputChange = (event) => {
@@ -46,7 +64,6 @@ export default function Home(props) {
   };
 
   const handleSubmit = async () => {
-    console.log("sending req");
     fetch("/api/generate-image-disco", {
       method: "POST",
       headers: {
@@ -56,12 +73,31 @@ export default function Home(props) {
       body: JSON.stringify({ textPrompt: textInput }),
     });
 
-    // if (!response.ok) {
-    //   throw new Error(`Error: ${response.status}`);
-    // }
-
     setTextInput("");
   };
+
+  const fetchImagesFromPrisma = async (id) => {
+    Promise.all(
+      images.map(async (image) => {
+        const response = await fetch("api/get-image-by-id", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ imageId: image.filename }),
+        });
+        const fetchedImage = await response.json();
+        return fetchedImage && fetchedImage[0];
+      })
+    ).then((allImagesFromDB) => {
+      setImagesFromDB(allImagesFromDB);
+    });
+  };
+
+  useEffect(async () => {
+    await fetchImagesFromPrisma();
+  }, []);
 
   return (
     <Layout>
@@ -78,22 +114,49 @@ export default function Home(props) {
         <main>
           <div>
             <Box sx={{ width: "100%" }}>
+              <MainImageContainer>
+                <MainImage
+                  src={`${images[0].url}?w=164&h=164&fit=crop&auto=format`}
+                />
+              </MainImageContainer>
               <Grid
                 container
                 direction="column"
                 justifyContent="center"
                 alignItems="center"
-                rowSpacing={3}
+                rowSpacing={2}
                 columnSpacing={{ xs: 3, sm: 3, md: 3 }}
               >
-                <Grid item>
+                <Grid
+                  item
+                  sx={{
+                    width: "300px",
+                    display: "flex",
+                    "@media (max-width: 768px)": {
+                      width: "80%",
+                      display: "flex",
+                      justifyContent: "center",
+                    },
+                  }}
+                >
                   <TextField
                     id={"outlined-textarea"}
-                    label={"Multiline Placeholder"}
+                    label={"Enter a Sentence"}
                     placeholder={"Placeholder"}
                     value={textInput}
                     multiline
                     onChange={handleTextInputChange}
+                    sx={{
+                      color: "black",
+                      borderColor: "black",
+                      width: "300px",
+                      ":hover": {
+                        color: "black",
+                      },
+                      "@media (max-width: 768px)": {
+                        width: "80%",
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid item>
@@ -102,26 +165,43 @@ export default function Home(props) {
                     variant={"contained"}
                     color={"primary"}
                     onClick={handleSubmit}
+                    sx={{
+                      backgroundColor: "black",
+                      ":hover": {
+                        backgroundColor: "black",
+                      },
+                    }}
                   >
                     Submit
                   </Button>
                 </Grid>
               </Grid>
-              <ImageList
-                gap={10}
-                sx={{ width: 500, height: 500 }}
-                cols={3}
-                rowHeight={164}
-              >
-                {images.map((item) => (
-                  <ImageListItem key={item.url}>
-                    <img
-                      src={`${item.url}?w=164&h=164&fit=crop&auto=format`}
-                      srcSet={`${item.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-                      loading="lazy"
-                    />
-                  </ImageListItem>
-                ))}
+              <ImageList cols={3} gap={8}>
+                {images.slice(1, 10).map((item) => {
+                  const text =
+                    imagesFromDB &&
+                    imagesFromDB.find((i) => {
+                      if (i && i.imageId == item.filename) {
+                        return i;
+                      }
+                    });
+
+                  return (
+                    <ImageListItem key={item.url}>
+                      <img
+                        src={`${item.url}?w=164&h=164&fit=crop&auto=format`}
+                        srcSet={`${item.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                        loading="lazy"
+                      />
+                      {text && (
+                        <ImageListItemBar
+                          title={text ? text.textPrompt : ""}
+                          position="below"
+                        />
+                      )}
+                    </ImageListItem>
+                  );
+                })}
               </ImageList>
             </Box>
           </div>
