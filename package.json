@@ -4,8 +4,7 @@
     "dev": "next dev",
     "build": "next build",
     "postinstall": "prisma generate",
-    "start": "next start",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build"
+    "start": "next start"
   },
   "dependencies": {
     "@emotion/react": "^11.9.0",
