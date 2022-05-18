@@ -56,7 +56,7 @@ export async function getServerSideProps(context) {
 
 export default function Home(props) {
   const images = props.images.images.slice(0, 10);
-  const [imagesFromDB, setImagesFromDB] = useState("");
+
   const [textInput, setTextInput] = useState("");
 
   const handleTextInputChange = (event) => {
@@ -70,34 +70,34 @@ export default function Home(props) {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ textPrompt: textInput }),
+      body: JSON.stringify({ textPrompt: textInput, status: "pending" }),
     });
 
     setTextInput("");
   };
 
-  const fetchImagesFromPrisma = async (id) => {
-    Promise.all(
-      images.map(async (image) => {
-        const response = await fetch("api/get-image-by-id", {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ imageId: image.filename }),
-        });
-        const fetchedImage = await response.json();
-        return fetchedImage && fetchedImage[0];
-      })
-    ).then((allImagesFromDB) => {
-      setImagesFromDB(allImagesFromDB);
-    });
-  };
+  // const fetchImagesFromPrisma = async (id) => {
+  //   Promise.all(
+  //     images.map(async (image) => {
+  //       const response = await fetch("api/get-image-by-id", {
+  //         method: "POST",
+  //         headers: {
+  //           Accept: "application/json",
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({ imageId: image.filename }),
+  //       });
+  //       const fetchedImage = await response.json();
+  //       return fetchedImage && fetchedImage[0];
+  //     })
+  //   ).then((allImagesFromDB) => {
+  //     setImagesFromDB(allImagesFromDB);
+  //   });
+  // };
 
-  useEffect(async () => {
-    await fetchImagesFromPrisma();
-  }, []);
+  // useEffect(async () => {
+  //   await fetchImagesFromPrisma();
+  // }, []);
 
   return (
     <Layout>
@@ -178,13 +178,13 @@ export default function Home(props) {
               </Grid>
               <ImageList cols={3} gap={8}>
                 {images.slice(1, 10).map((item) => {
-                  const text =
-                    imagesFromDB &&
-                    imagesFromDB.find((i) => {
-                      if (i && i.imageId == item.filename) {
-                        return i;
-                      }
-                    });
+                  // const text =
+                  //   imagesFromDB &&
+                  //   imagesFromDB.find((i) => {
+                  //     if (i && i.imageId == item.filename) {
+                  //       return i;
+                  //     }
+                  //   });
 
                   return (
                     <ImageListItem key={item.url}>
@@ -193,9 +193,9 @@ export default function Home(props) {
                         srcSet={`${item.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
                         loading="lazy"
                       />
-                      {text && (
+                      {item.context && (
                         <ImageListItemBar
-                          title={text ? text.textPrompt : ""}
+                          title={item.context ? item.context.alt : ""}
                           position="below"
                         />
                       )}
