@@ -38,7 +38,7 @@ const MainImage = styled.img`
   padding-bottom: 2rem;
 `;
 
-export async function getStaticProps(context) {
+export async function getServerSideProps(context) {
   cloudinary.config({
     cloud_name: "detzng4ks",
     api_key: process.env.API_KEY_CLOUDINARY,
