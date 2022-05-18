@@ -53,7 +53,7 @@ export async function getServerSideProps(context) {
     });
 
   return {
-    props: { images }, // will be passed to the page component as props
+    props: { images },
   };
 }
 
@@ -66,7 +66,7 @@ export default function Home(props) {
     setTextInput(event.target.value);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     fetch("/api/generate-image-disco", {
       method: "POST",
       headers: {
