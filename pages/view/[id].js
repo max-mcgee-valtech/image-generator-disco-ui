@@ -28,6 +28,12 @@ const MainImage = styled.img`
 `;
 
 export async function getServerSideProps(context) {
+  cloudinary.config({
+    cloud_name: "detzng4ks",
+    api_key: process.env.API_KEY_CLOUDINARY,
+    api_secret: process.env.CLOUDINARY_SECRET,
+  });
+
   const images = await cloudinary.v2.search
     .expression("folder=disco-diffusion-active-tests")
     .expression(context.params.id)
