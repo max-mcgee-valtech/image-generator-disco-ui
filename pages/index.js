@@ -38,7 +38,7 @@ const MainImage = styled.img`
   padding-bottom: 2rem;
 `;
 
-export async function getServerSideProps(context) {
+export async function getStaticProps(context) {
   cloudinary.config({
     cloud_name: "detzng4ks",
     api_key: process.env.API_KEY_CLOUDINARY,
@@ -47,7 +47,7 @@ export async function getServerSideProps(context) {
 
   const images = await cloudinary.v2.search
     .expression("folder=disco-diffusion-active-tests")
-    .sort_by("uploaded_at", "desc")
+    .sort_by("created_at", "desc")
     .with_field("context")
     .execute()
     .then((result) => {
@@ -62,17 +62,22 @@ export async function getServerSideProps(context) {
 }
 
 export default function Home(props) {
-  const imagesBottomGrid = props.images.images.slice(1, 10);
-  const imageFeatured = props.images.images[0];
-
+  const [recentImages, setRecentImages] = useState([]);
   const [textInput, setTextInput] = useState("");
+
+  const imageFeatured = props.images.images[0];
 
   const handleTextInputChange = (event) => {
     setTextInput(event.target.value);
   };
 
-  const handleSubmit = () => {
-    fetch("/api/generate-image-disco", {
+  useEffect(() => {
+    setRecentImages(props.images.images.slice(0, 10));
+  }, props.images);
+
+  const handleSubmit = async () => {
+    setTextInput("");
+    await fetch("/api/generate-image-disco", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -80,11 +85,15 @@ export default function Home(props) {
       },
       body: JSON.stringify({ textPrompt: textInput, status: "pending" }),
     });
-
-    setTextInput("");
+    setTimeout(async () => {
+      const updateImages = await fetch("/api/fetch-recent-images", {
+        method: "GET",
+      });
+      const finalUpdatedImages = await updateImages.json();
+      console.log("final ", finalUpdatedImages);
+      setRecentImages(finalUpdatedImages.images.slice(0, 10));
+    }, 2000);
   };
-
-  const navigateToView = () => {};
 
   return (
     <Layout>
@@ -94,21 +103,23 @@ export default function Home(props) {
             http-equiv="Content-Security-Policy"
             content="upgrade-insecure-requests"
           />
-          <title>Create Next App</title>
+          <title>Image Alchemist</title>
           <link rel="icon" href="/favicon.ico" />
         </Head>
 
         <main>
           <div>
             <Box sx={{ width: "100%" }}>
-              <Link href={`/view/${imageFeatured.filename}`}>
-                <MainImageContainer>
-                  <MainImage
-                    src={`${imageFeatured.url}?w=164&h=164&fit=crop&auto=format`}
-                  />
-                  <div>{imageFeatured.context.caption}</div>
-                </MainImageContainer>
-              </Link>
+              {recentImages[0] && (
+                <Link href={`/view/${recentImages[0].filename}`}>
+                  <MainImageContainer>
+                    <MainImage
+                      src={`${recentImages[0].url}?w=164&h=164&fit=crop&auto=format`}
+                    />
+                    <div>{recentImages[0].context.caption}</div>
+                  </MainImageContainer>
+                </Link>
+              )}
               <Grid
                 container
                 direction="column"
@@ -167,14 +178,10 @@ export default function Home(props) {
                 </Grid>
               </Grid>
               <ImageList cols={3} gap={8}>
-                {imagesBottomGrid.map((item) => {
+                {recentImages.slice(1, 10).map((item) => {
                   return (
                     <Link href={`/view/${item.filename}`} key={item.filename}>
-                      <ImageListItem
-                        key={item.url}
-                        onClick={navigateToView}
-                        sx={{ cursor: "pointer" }}
-                      >
+                      <ImageListItem key={item.url} sx={{ cursor: "pointer" }}>
                         <img
                           src={`${item.url}?w=164&h=164&fit=crop&auto=format`}
                           srcSet={`${item.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
