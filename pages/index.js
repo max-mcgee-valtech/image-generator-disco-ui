@@ -17,6 +17,8 @@ import TextField from "@mui/material/TextField";
 
 const MainImageContainer = styled.div`
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   padding: 2rem 0;
   @media screen and (max-width: 600px) {
@@ -29,6 +31,7 @@ const MainImage = styled.img`
   max-width: 600px;
   height: auto;
   border-radius: 6px;
+  padding-bottom: 2rem;
 `;
 
 export async function getServerSideProps(context) {
@@ -118,6 +121,7 @@ export default function Home(props) {
                 <MainImage
                   src={`${images[0].url}?w=164&h=164&fit=crop&auto=format`}
                 />
+                <div>{images[0].context.caption}</div>
               </MainImageContainer>
               <Grid
                 container
@@ -195,7 +199,7 @@ export default function Home(props) {
                       />
                       {item.context && (
                         <ImageListItemBar
-                          title={item.context ? item.context.alt : ""}
+                          title={item.context ? item.context.caption : ""}
                           position="below"
                         />
                       )}
