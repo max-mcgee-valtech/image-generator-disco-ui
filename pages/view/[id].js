@@ -1,8 +1,8 @@
 import React from "react";
 import cloudinary from "cloudinary";
-import { Box } from "@mui/material";
+import { Box, Skeleton } from "@mui/material";
 import styled from "styled-components";
-import { useRouter } from "next/router";
+import { SkeletonContainerDesktop, SkeletonContainerMobile, Caption } from "..";
 
 import Head from "next/head";
 import Layout from "../../components/layout";
@@ -67,10 +67,30 @@ export default function Home(props) {
           <div>
             <Box sx={{ width: "100%" }}>
               <MainImageContainer>
-                <MainImage
-                  src={`${image.url}?w=164&h=164&fit=crop&auto=format`}
-                />
-                <div>{image.context.caption}</div>
+                {image.context.alt === "pending" ? (
+                  <>
+                    <SkeletonContainerDesktop>
+                      <Skeleton
+                        variant="rectangular"
+                        width={600}
+                        height={392}
+                      />
+                    </SkeletonContainerDesktop>
+                    <SkeletonContainerMobile>
+                      <Skeleton
+                        variant="rectangular"
+                        width={320}
+                        height={200}
+                      />
+                    </SkeletonContainerMobile>
+                  </>
+                ) : (
+                  <MainImage
+                    src={`${image.url}?w=164&h=164&fit=crop&auto=format`}
+                  />
+                )}
+
+                <Caption>{image.context.caption}</Caption>
               </MainImageContainer>
             </Box>
           </div>

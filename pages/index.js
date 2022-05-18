@@ -8,6 +8,7 @@ import {
   ImageListItem,
   ImageList,
   ImageListItemBar,
+  Skeleton,
 } from "@mui/material";
 import styled from "styled-components";
 
@@ -23,19 +24,38 @@ const MainImageContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 2rem 0;
-  cursor: pointer;
+  border-radius: 6px;
+
   @media screen and (max-width: 600px) {
     padding: 1rem 0;
   }
 `;
 
 const MainImage = styled.img`
+  cursor: pointer;
   width: 100%;
   max-width: 600px;
   max-height: 392px;
   height: auto;
   border-radius: 6px;
-  padding-bottom: 2rem;
+`;
+
+export const Caption = styled.div`
+  max-width: 600px;
+  line-height: 1.5;
+  padding-top: 2rem;
+`;
+
+export const SkeletonContainerDesktop = styled.div`
+  @media screen and (max-width: 600px) {
+    display: none;
+  }
+`;
+
+export const SkeletonContainerMobile = styled.div`
+  @media screen and (min-width: 600px) {
+    display: none;
+  }
 `;
 
 export async function getServerSideProps(context) {
@@ -65,8 +85,6 @@ export default function Home(props) {
   const [recentImages, setRecentImages] = useState([]);
   const [textInput, setTextInput] = useState("");
 
-  const imageFeatured = props.images.images[0];
-
   const handleTextInputChange = (event) => {
     setTextInput(event.target.value);
   };
@@ -95,6 +113,8 @@ export default function Home(props) {
     }, 2000);
   };
 
+  console.log(recentImages[0]);
+
   return (
     <Layout>
       <div className="container">
@@ -113,10 +133,30 @@ export default function Home(props) {
               {recentImages[0] && (
                 <Link href={`/view/${recentImages[0].filename}`}>
                   <MainImageContainer>
-                    <MainImage
-                      src={`${recentImages[0].url}?w=164&h=164&fit=crop&auto=format`}
-                    />
-                    <div>{recentImages[0].context.caption}</div>
+                    {recentImages[0].context.alt === "pending" ? (
+                      <>
+                        <SkeletonContainerDesktop>
+                          <Skeleton
+                            variant="rectangular"
+                            width={600}
+                            height={392}
+                          />
+                        </SkeletonContainerDesktop>
+                        <SkeletonContainerMobile>
+                          <Skeleton
+                            variant="rectangular"
+                            width={320}
+                            height={200}
+                          />
+                        </SkeletonContainerMobile>
+                      </>
+                    ) : (
+                      <MainImage
+                        src={`${recentImages[0].url}?w=164&h=164&fit=crop&auto=format`}
+                      />
+                    )}
+
+                    <Caption>{recentImages[0].context.caption}</Caption>
                   </MainImageContainer>
                 </Link>
               )}
@@ -182,15 +222,24 @@ export default function Home(props) {
                   return (
                     <Link href={`/view/${item.filename}`} key={item.filename}>
                       <ImageListItem key={item.url} sx={{ cursor: "pointer" }}>
-                        <img
-                          src={`${item.url}?w=164&h=164&fit=crop&auto=format`}
-                          srcSet={`${item.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-                          loading="lazy"
-                        />
+                        {item.context.alt === "pending" ? (
+                          <Skeleton
+                            variant="rectangular"
+                            width={260}
+                            height={160}
+                          />
+                        ) : (
+                          <img
+                            src={`${item.url}?w=164&h=164&fit=crop&auto=format`}
+                            srcSet={`${item.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                            loading="lazy"
+                          />
+                        )}
                         {item.context && (
                           <ImageListItemBar
                             title={item.context ? item.context.caption : ""}
                             position="below"
+                            sx={{ fontFamily: "FuturaStdBook" }}
                           />
                         )}
                       </ImageListItem>
