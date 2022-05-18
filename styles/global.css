@@ -15,8 +15,8 @@ body {
 }
 
 .MuiImageListItem-root {
-  display: grid;
-  grid-template-rows: 12em 1fr;
+  display: grid !important;
+  grid-template-rows: 10em 1fr !important;
   grid-gap: 1em;
 }
 
