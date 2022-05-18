@@ -1,19 +1,19 @@
 import cloudinary from "cloudinary";
 import { uuid } from "uuidv4";
 
-export default async function handler(req, res) {
+export default async function handle(req, res) {
   const textPrompt = req.body.textPrompt;
   const status = req.body.status;
   const newId = uuid();
 
-  await cloudinary.v2.uploader.upload(
-    "https://res.cloudinary.com/detzng4ks/image/upload/v1652744227/gray_rmkqbm.png",
-    {
-      public_id: newId,
-      folder: "/disco-diffusion-active-tests",
-      context: `alt=${status}|caption=${textPrompt}`,
-    }
-  );
+  // await cloudinary.v2.uploader.upload(
+  //   "https://res.cloudinary.com/detzng4ks/image/upload/v1652744227/gray_rmkqbm.png",
+  //   {
+  //     public_id: newId,
+  //     folder: "/disco-diffusion-active-tests",
+  //     context: `alt=${status}|caption=${textPrompt}`,
+  //   }
+  // );
 
   // fetch("http://13.56.154.163:5000/handle_data", {
   //   method: "POST",
@@ -28,8 +28,5 @@ export default async function handler(req, res) {
   //     imageId: newId,
   //   }),
   // });
-
-  res.status(200).send({
-    currentPrompt: textPrompt,
-  });
+  return res.json({ currentPrompt: textPrompt });
 }
