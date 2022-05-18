@@ -12,6 +12,8 @@ import {
 import styled from "styled-components";
 
 import Head from "next/head";
+import Link from "next/link";
+
 import Layout from "../components/layout";
 import TextField from "@mui/material/TextField";
 
@@ -21,6 +23,7 @@ const MainImageContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 2rem 0;
+  cursor: pointer;
   @media screen and (max-width: 600px) {
     padding: 1rem 0;
   }
@@ -59,7 +62,8 @@ export async function getServerSideProps(context) {
 }
 
 export default function Home(props) {
-  const images = props.images.images.slice(0, 10);
+  const imagesBottomGrid = props.images.images.slice(1, 10);
+  const imageFeatured = props.images.images[0];
 
   const [textInput, setTextInput] = useState("");
 
@@ -80,28 +84,7 @@ export default function Home(props) {
     setTextInput("");
   };
 
-  // const fetchImagesFromPrisma = async (id) => {
-  //   Promise.all(
-  //     images.map(async (image) => {
-  //       const response = await fetch("api/get-image-by-id", {
-  //         method: "POST",
-  //         headers: {
-  //           Accept: "application/json",
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({ imageId: image.filename }),
-  //       });
-  //       const fetchedImage = await response.json();
-  //       return fetchedImage && fetchedImage[0];
-  //     })
-  //   ).then((allImagesFromDB) => {
-  //     setImagesFromDB(allImagesFromDB);
-  //   });
-  // };
-
-  // useEffect(async () => {
-  //   await fetchImagesFromPrisma();
-  // }, []);
+  const navigateToView = () => {};
 
   return (
     <Layout>
@@ -118,12 +101,14 @@ export default function Home(props) {
         <main>
           <div>
             <Box sx={{ width: "100%" }}>
-              <MainImageContainer>
-                <MainImage
-                  src={`${images[0].url}?w=164&h=164&fit=crop&auto=format`}
-                />
-                <div>{images[0].context.caption}</div>
-              </MainImageContainer>
+              <Link href={`/view/${imageFeatured.filename}`}>
+                <MainImageContainer>
+                  <MainImage
+                    src={`${imageFeatured.url}?w=164&h=164&fit=crop&auto=format`}
+                  />
+                  <div>{imageFeatured.context.caption}</div>
+                </MainImageContainer>
+              </Link>
               <Grid
                 container
                 direction="column"
@@ -182,29 +167,27 @@ export default function Home(props) {
                 </Grid>
               </Grid>
               <ImageList cols={3} gap={8}>
-                {images.slice(1, 10).map((item) => {
-                  // const text =
-                  //   imagesFromDB &&
-                  //   imagesFromDB.find((i) => {
-                  //     if (i && i.imageId == item.filename) {
-                  //       return i;
-                  //     }
-                  //   });
-
+                {imagesBottomGrid.map((item) => {
                   return (
-                    <ImageListItem key={item.url}>
-                      <img
-                        src={`${item.url}?w=164&h=164&fit=crop&auto=format`}
-                        srcSet={`${item.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-                        loading="lazy"
-                      />
-                      {item.context && (
-                        <ImageListItemBar
-                          title={item.context ? item.context.caption : ""}
-                          position="below"
+                    <Link href={`/view/${item.filename}`} key={item.filename}>
+                      <ImageListItem
+                        key={item.url}
+                        onClick={navigateToView}
+                        sx={{ cursor: "pointer" }}
+                      >
+                        <img
+                          src={`${item.url}?w=164&h=164&fit=crop&auto=format`}
+                          srcSet={`${item.url}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                          loading="lazy"
                         />
-                      )}
-                    </ImageListItem>
+                        {item.context && (
+                          <ImageListItemBar
+                            title={item.context ? item.context.caption : ""}
+                            position="below"
+                          />
+                        )}
+                      </ImageListItem>
+                    </Link>
                   );
                 })}
               </ImageList>
