@@ -29,6 +29,7 @@ const MainImageContainer = styled.div`
 const MainImage = styled.img`
   width: 100%;
   max-width: 600px;
+  max-height: 392px;
   height: auto;
   border-radius: 6px;
   padding-bottom: 2rem;
