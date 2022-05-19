@@ -44,6 +44,9 @@ export const Caption = styled.div`
   max-width: 600px;
   line-height: 1.5;
   padding-top: 2rem;
+  @media screen and (max-width: 600px) {
+    max-width: 300px;
+  }
 `;
 
 export const SkeletonContainerDesktop = styled.div`
