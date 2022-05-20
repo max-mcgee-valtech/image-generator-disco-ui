@@ -23,7 +23,7 @@ import Head from "next/head";
 import Link from "next/link";
 
 import Layout from "../../components/layout";
-import { ApiContext } from "./gameProvider";
+import { ApiContext } from "../utils/gameProvider";
 
 const MainImageContainer = styled.div`
   display: flex;
