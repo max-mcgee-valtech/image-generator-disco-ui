@@ -2,17 +2,11 @@ import { useReducer, createContext } from "react";
 import apiReducer from "./gameReducer";
 
 const initialState = {
-  users: { success: false, loading: false, error: false, data: [] },
   game: {
     players: [],
     numQuestions: 1,
     currentStep: 0,
-    steps: [
-      {
-        imageUrl: "",
-        questions: [{ text: "", isCorrect: false }],
-      },
-    ],
+    steps: [],
   },
 };
 

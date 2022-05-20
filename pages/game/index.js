@@ -120,18 +120,21 @@ export default function Game(props) {
 
   const handleSubmitQuestion = (event) => {
     event.preventDefault();
-    console.log("VALUE", value);
 
-    if (value === "best") {
+    if (value == state.game.steps[state.game.currentStep].correctTextPrompt) {
       setHelperText("You got it!");
       setError(false);
-    } else if (value === "worst") {
-      setHelperText("Sorry, wrong answer!");
-      setError(true);
     } else {
-      setHelperText("Please select an option.");
-      setError(true);
+      setHelperText("Sorry, wrong answer!");
+      setError(false);
     }
+
+    setTimeout(() => {
+      setValue("");
+      dispatch({
+        type: "INCREMENT_CURRENT_STEP",
+      });
+    }, 3000);
   };
 
   const handleTextInputChange = (event) => {
@@ -145,29 +148,44 @@ export default function Game(props) {
   }, [numQuestions]);
 
   const handleSubmit = async () => {
-    dispatch({ type: "UPDATE_NUM_QUESTIONS" });
-    return;
     const listOfPlayers = textInput.split(",");
-    const playersForGame = listOfPlayers.map((player) => {
-      return {
-        name: player,
-        points: 0,
-      };
+    const numQuestions = listOfPlayers.length * 3;
+    dispatch({
+      type: "UPDATE_NUM_QUESTIONS",
+      payload: numQuestions,
     });
-    setNumQuestions(playersForGame.length * 3);
-    let newGame = {
-      players: playersForGame,
-      numQuestions: playersForGame.length * 3,
-      currentStep: 1,
-      steps: [
-        {
-          imageUrl: "",
-          questions: [{ text: "", isCorrect: false }],
-        },
-      ],
-    };
-    console.log(newGame);
-    setGame(newGame);
+
+    const shuffled = props.images.images
+      .filter((img) => img.context?.caption)
+      .sort(() => 0.5 - Math.random());
+    let imagesWithCaptions = shuffled.slice(0, numQuestions);
+
+    const shuffledCaptions = props.images.images
+      .filter((img) => img.context?.caption)
+      .map((captionImg) => captionImg.context.caption);
+
+    const cleanedImages = imagesWithCaptions.map((image) => {
+      if (image.context?.caption) {
+        return {
+          filename: image.filename,
+          currentStep: 1,
+          url: image.url,
+          correctTextPrompt: image.context?.caption ?? "",
+          options: shuffledCaptions
+            .slice(0, 3)
+            .concat(image.context?.caption ?? "")
+            .sort(() => 0.5 - Math.random()),
+        };
+      }
+    });
+
+    dispatch({
+      type: "SET_GAME_STEPS",
+      payload: cleanedImages,
+    });
+    dispatch({
+      type: "INCREMENT_CURRENT_STEP",
+    });
   };
 
   return (
@@ -185,35 +203,16 @@ export default function Game(props) {
         <main>
           <div>
             <Box sx={{ width: "100%" }}>
-              {recentImages[0] && (
+              {state.game.steps[state.game.currentStep] && (
                 <MainImageContainer>
-                  {recentImages[0].context.alt === "pending" ? (
-                    <>
-                      <SkeletonContainerDesktop>
-                        <Skeleton
-                          variant="rectangular"
-                          width={600}
-                          height={392}
-                        />
-                      </SkeletonContainerDesktop>
-                      <SkeletonContainerMobile>
-                        <Skeleton
-                          variant="rectangular"
-                          width={320}
-                          height={200}
-                        />
-                      </SkeletonContainerMobile>
-                    </>
-                  ) : (
-                    <MainImage
-                      src={`${recentImages[0].url}?w=164&h=164&fit=crop&auto=format`}
-                    />
-                  )}
-
-                  <Caption>{recentImages[0].context.caption}</Caption>
+                  <MainImage
+                    src={`${
+                      state.game.steps[state.game.currentStep].url
+                    }?w=164&h=164&fit=crop&auto=format`}
+                  />
                 </MainImageContainer>
               )}
-              {
+              {state.game.currentStep === 0 && (
                 <Grid
                   container
                   direction="column"
@@ -273,8 +272,8 @@ export default function Game(props) {
                     </Button>
                   </Grid>
                 </Grid>
-              }
-              {/* {game.currentStep > 0 && (
+              )}
+              {state.game.currentStep > 0 && (
                 <QuizFormWrapper onSubmit={handleSubmitQuestion}>
                   <FormControl sx={{ m: 3 }} error={error} variant="standard">
                     <FormLabel id="demo-error-radios">
@@ -288,14 +287,40 @@ export default function Game(props) {
                       onChange={handleRadioChange}
                     >
                       <FormControlLabel
-                        value="best"
+                        value={
+                          state.game.steps[state.game.currentStep].options[0]
+                        }
+                        label={
+                          state.game.steps[state.game.currentStep].options[0]
+                        }
                         control={<Radio />}
-                        label="The best!"
                       />
                       <FormControlLabel
-                        value="worst"
+                        value={
+                          state.game.steps[state.game.currentStep].options[1]
+                        }
+                        label={
+                          state.game.steps[state.game.currentStep].options[1]
+                        }
                         control={<Radio />}
-                        label="The worst."
+                      />
+                      <FormControlLabel
+                        value={
+                          state.game.steps[state.game.currentStep].options[2]
+                        }
+                        label={
+                          state.game.steps[state.game.currentStep].options[2]
+                        }
+                        control={<Radio />}
+                      />
+                      <FormControlLabel
+                        value={
+                          state.game.steps[state.game.currentStep].options[3]
+                        }
+                        label={
+                          state.game.steps[state.game.currentStep].options[3]
+                        }
+                        control={<Radio />}
                       />
                     </RadioGroup>
                     <FormHelperText>{helperText}</FormHelperText>
@@ -308,7 +333,7 @@ export default function Game(props) {
                     </Button>
                   </FormControl>
                 </QuizFormWrapper>
-              )} */}
+              )}
             </Box>
           </div>
         </main>

@@ -4,22 +4,17 @@ const apiReducer = (state = {}, action) => {
       console.log("...state", state);
       return {
         ...state,
-        game: { ...state.game, numQuestions: 2 },
+        game: { ...state.game, numQuestions: action.payload },
       };
-    case "FETCH_USERS_SUCCESS":
+    case "SET_GAME_STEPS":
       return {
         ...state,
-        users: {
-          success: true,
-          loading: true,
-          error: false,
-          data: action.payload.data,
-        },
+        game: { ...state.game, steps: action.payload },
       };
-    case "FETCH_USERS_ERROR":
+    case "INCREMENT_CURRENT_STEP":
       return {
         ...state,
-        users: { success: false, loading: false, error: true, data: [] },
+        game: { ...state.game, currentStep: state.game.currentStep + 1 },
       };
 
     default:
