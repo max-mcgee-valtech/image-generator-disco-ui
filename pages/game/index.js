@@ -1,4 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
+
+// import {
+//   getDatabase,
+//   ref,
+//   onValue,
+//   child,
+//   push,
+//   update,
+// } from "firebase/database";
+
 import cloudinary from "cloudinary";
 import {
   Stack,
@@ -22,6 +32,7 @@ import styled from "styled-components";
 import Head from "next/head";
 
 import Layout from "../../components/layout";
+import Leaderboard from "../../components/leaderboard";
 import { ApiContext } from "../../utils/gameProvider";
 
 const MainImageContainer = styled.div`
@@ -96,6 +107,13 @@ export async function getServerSideProps(context) {
 }
 
 export default function Game(props) {
+  // const db = getDatabase();
+  // const scoresRef = ref(db, "scores");
+  // onValue(scoresRef, (snapshot) => {
+  //   const data = snapshot.val();
+  //   console.log(data);
+  //   // updateStarCount(postElement, data);
+  // });
   const { state, dispatch } = useContext(ApiContext);
 
   const [recentImages, setRecentImages] = useState([]);
@@ -116,6 +134,22 @@ export default function Game(props) {
     setHelperText(" ");
     setError(false);
   };
+
+  // function writeNewPost(uid, username, picture, title, body) {
+  //   const db = getDatabase();
+  //   // A post entry.
+  //   const postData = {
+  //     username: "Jack T",
+  //     points: 21,
+  //   };
+  //   const newPostKey = push(child(ref(db), "scores")).key;
+
+  //   // Write the new post's data simultaneously in the posts list and the user's post list.
+  //   const updates = {};
+  //   updates["/scores/" + newPostKey] = postData;
+
+  //   return update(ref(db), updates);
+  // }
 
   const handleSubmitQuestion = (event) => {
     event.preventDefault();
@@ -234,10 +268,8 @@ export default function Game(props) {
                   >
                     <TextField
                       id={"outlined-textarea"}
-                      label={"Enter Player Full Names, Separated By Comma"}
-                      placeholder={
-                        "Enter Player Full Names, Separated By Comma"
-                      }
+                      label={"Enter your Full Name"}
+                      placeholder={"Enter your Full Name"}
                       value={textInput}
                       multiline
                       onChange={handleTextInputChange}
