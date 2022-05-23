@@ -30,6 +30,7 @@ import {
 import styled from "styled-components";
 
 import Head from "next/head";
+import Link from "next/link";
 
 import Layout from "../../components/layout";
 import Leaderboard from "../../components/leaderboard";
@@ -135,21 +136,21 @@ export default function Game(props) {
     setError(false);
   };
 
-  // function writeNewPost(uid, username, picture, title, body) {
-  //   const db = getDatabase();
-  //   // A post entry.
-  //   const postData = {
-  //     username: "Jack T",
-  //     points: 21,
-  //   };
-  //   const newPostKey = push(child(ref(db), "scores")).key;
+  function writeNewPost(uid, username, picture, title, body) {
+    const db = getDatabase();
+    // A post entry.
+    const postData = {
+      username: "Jack T",
+      points: 21,
+    };
+    const newPostKey = push(child(ref(db), "scores")).key;
 
-  //   // Write the new post's data simultaneously in the posts list and the user's post list.
-  //   const updates = {};
-  //   updates["/scores/" + newPostKey] = postData;
+    // Write the new post's data simultaneously in the posts list and the user's post list.
+    const updates = {};
+    updates["/scores/" + newPostKey] = postData;
 
-  //   return update(ref(db), updates);
-  // }
+    return update(ref(db), updates);
+  }
 
   const handleSubmitQuestion = (event) => {
     event.preventDefault();
@@ -365,8 +366,10 @@ export default function Game(props) {
                   </FormControl>
                 </QuizFormWrapper>
               )}
+              <Leaderboard />
             </Box>
           </div>
+          <Button onClick={writeNewPost}>TEST</Button>
         </main>
       </div>
     </Layout>
