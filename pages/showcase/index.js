@@ -120,16 +120,16 @@ export default function Game(props) {
               className={styles.radiofront}
               name="select-face"
             />
-            {/* <input
+            <input
               type="radio"
               className={styles.radioleft}
               name="select-face"
-            /> */}
-            {/* <input
+            />
+            <input
               type="radio"
               className={styles.radioright}
               name="select-face"
-            /> */}
+            />
             <input
               type="radio"
               className={styles.radiotop}

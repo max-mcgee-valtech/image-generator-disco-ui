@@ -47,8 +47,10 @@ body {
   border-radius: 6px;
 }
 
-.MuiFormControl-root label {
+.MuiFormControl-root label,
+.MuiFormControl-root span {
   color: black !important;
+  font-family: "FuturaStdBook" !important;
 }
 
 .Mui-focused fieldset {

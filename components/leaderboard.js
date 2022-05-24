@@ -20,15 +20,15 @@ const Title = styled.h2`
   font-size: 20px;
   height: 40px;
   position: relative;
-  top: -156px;
+  top: -115px;
 `;
 
 const ListItemWrapper = styled.div`
   display: flex;
   justify-content: space-between;
-  width: 10rem;
+  width: 8rem;
   position: relative;
-  left: 60px;
+  left: 12px;
 `;
 
 const Shape = styled.div`
@@ -43,9 +43,8 @@ const Shape = styled.div`
 `;
 
 const Container = styled.div`
-  background: orange;
   border: 1px solid black;
-  width: 400px;
+  width: 300px;
   display: flex;
   perspective: 1000px;
   flex-direction: column;
@@ -88,14 +87,14 @@ export default function InsetList() {
         <div
           className={`${styles._3dface} ${styles._3dfacefront}`}
           style={{
-            background: "lightblue",
+            background: "#0f9",
           }}
         >
           <Title>All-Time Leaderboard</Title>
           <List>
             {leaderboard.map((value, index) => {
               return (
-                <ListItem>
+                <ListItem style={{ paddingLeft: "42px" }}>
                   {index === 0 && (
                     <ListItemIcon>
                       <StarIcon />
@@ -119,31 +118,31 @@ export default function InsetList() {
         <div
           className={`${styles._3dface} ${styles._3dfacetop}`}
           style={{
-            background: "lightblue",
+            background: "#0f9",
           }}
         ></div>
         <div
           className={`${styles._3dface} ${styles._3dfacebottom}`}
           style={{
-            background: "lightblue",
+            background: "#0f9",
           }}
         ></div>
         <div
           className={`${styles._3dface} ${styles._3dfaceleft}`}
           style={{
-            background: "lightblue",
+            background: "#0f9",
           }}
         ></div>
         <div
           className={`${styles._3dface} ${styles._3dfaceright}`}
           style={{
-            background: "lightblue",
+            background: "#0f9",
           }}
         ></div>
         <div
           className={`${styles._3dface} ${styles._3dfaceback}`}
           style={{
-            background: "lightblue",
+            background: "#0f9",
           }}
         ></div>
       </Shape>

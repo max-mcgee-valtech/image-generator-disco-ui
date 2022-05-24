@@ -1,12 +1,12 @@
+// https://codepen.io/mxmcg/pen/MWQEzoV
+
 import React, { useState, useEffect, useContext } from "react";
 
 import {
   getDatabase,
   ref,
   query,
-  orderByChild,
   onValue,
-  limitToLast,
   update,
   push,
   child,
@@ -14,13 +14,7 @@ import {
 
 import cloudinary from "cloudinary";
 import {
-  Stack,
   Grid,
-  Box,
-  ImageListItem,
-  ImageList,
-  ImageListItemBar,
-  Skeleton,
   FormHelperText,
   Button,
   FormControl,
@@ -40,31 +34,11 @@ import Layout from "../../components/layout";
 import Leaderboard from "../../components/leaderboard";
 import { ApiContext } from "../../utils/gameProvider";
 
-const MainImageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 0;
-  border-radius: 6px;
-
-  @media screen and (max-width: 600px) {
-    padding: 1rem 0;
-  }
-`;
-
 const QuizFormWrapper = styled.form`
   display: flex;
   justify-content: center;
-`;
-
-const MainImage = styled.img`
-  cursor: pointer;
-  width: 100%;
-  max-width: 600px;
-  max-height: 392px;
-  height: auto;
-  border-radius: 6px;
+  padding-top: 9rem;
+  width: 800px;
 `;
 
 export const Caption = styled.div`
@@ -77,7 +51,6 @@ export const Caption = styled.div`
 `;
 
 const GalleryWrapper = styled.div`
-  border: 1px blue solid;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -85,21 +58,74 @@ const GalleryWrapper = styled.div`
 `;
 
 const BoxWrapper = styled.div`
-  /* transform: rotateY(180deg); */
+  transform: ${(props) => {
+    switch (props.step) {
+      case 0:
+        return "";
+      case 1:
+        return "rotateX(90deg)";
+      case 2:
+        return "rotateY(180deg)";
+      case 3:
+        return "rotateX(-90deg)";
+      case 4:
+        return "";
+      case 5:
+        return "rotateX(90deg)";
+      case 6:
+        return "rotateY(180deg)";
+      case 7:
+        return "rotateX(-90deg)";
+
+      default:
+        return "";
+    }
+  }};
 `;
 
 const GameContainer = styled.div`
-  background: lightgreen;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const Greeting = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding: 2rem 0;
+  justify-content: center;
 `;
 
 const ViewContainer = styled.div`
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  margin: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+
+  min-width: 20rem;
+  overflow-anchor: none;
+  -webkit-overflow-scrolling: touch;
+  background-size: 8px 8px;
+  background-image: linear-gradient(90deg, #f5f5f5 6px, transparent 1%),
+    linear-gradient(#f5f5f5 6px, transparent 1%);
+  background-color: #e0dad3;
 `;
 
 export const Title = styled.div``;
+
+const InputWrapper = styled.div`
+  display: flex;
+  flex-direction: center;
+  justify-content: center;
+`;
 
 export const ScoreContainer = styled.div`
   display: flex;
@@ -109,9 +135,8 @@ export const ScoreContainer = styled.div`
 
 export const GameScore = styled.div`
   display: flex;
-  justify-content: space-around;
-  padding: 2rem 0;
-  width: 100%;
+  justify-content: space-between;
+  width: 600px;
 `;
 
 export async function getServerSideProps(context) {
@@ -146,6 +171,14 @@ export default function Game(props) {
   useEffect(() => {
     console.log(state);
   }, [state]);
+
+  const onPlayAgain = () => {
+    dispatch({
+      type: "RESET_GAME",
+    });
+    setupGame();
+  };
+
   const [value, setValue] = React.useState("");
   const [error, setError] = React.useState(false);
   const [helperText, setHelperText] = React.useState("Choose wisely");
@@ -157,9 +190,7 @@ export default function Game(props) {
   };
 
   function incrementPoint() {
-    console.log("CURRENT PLAYer", currentPlayer);
     const db = getDatabase();
-    // A post entry.
 
     const newPostKey = currentPlayer?.key ?? push(child(ref(db), "scores")).key;
 
@@ -168,7 +199,6 @@ export default function Game(props) {
       points: currentPlayer?.points ? currentPlayer.points + 1 : 1,
     };
 
-    // Write the new post's data simultaneously in the posts list and the user's post list.
     let updates = {};
 
     updates["/scores/" + newPostKey] = postData;
@@ -195,18 +225,17 @@ export default function Game(props) {
       dispatch({
         type: "INCREMENT_CURRENT_STEP",
       });
-    }, 3000);
+    }, 1500);
   };
 
   const handleTextInputChange = (event) => {
     setTextInput(event.target.value);
   };
 
-  const handleSubmit = async () => {
-    const topUserPostsRef = query(ref(database, "scores"));
+  const setupGame = async () => {
+    const topUserScoresRef = query(ref(database, "scores"));
 
-    //To add a listener you can use the onValue() method like,
-    onValue(query(topUserPostsRef), (snapshot) => {
+    onValue(query(topUserScoresRef), (snapshot) => {
       snapshot.forEach(
         (childSnapshot) => {
           const childKey = childSnapshot.key;
@@ -220,9 +249,12 @@ export default function Game(props) {
           onlyOnce: true,
         }
       );
+      if (currentPlayer == null) {
+        setCurrentPlayer({ username: textInput, points: 0 });
+      }
     });
 
-    const numQuestions = 10;
+    const numQuestions = 8;
     dispatch({
       type: "UPDATE_NUM_QUESTIONS",
       payload: numQuestions,
@@ -261,247 +293,212 @@ export default function Game(props) {
       type: "SET_GAME_STEPS",
       payload: cleanedImages,
     });
-    dispatch({
-      type: "INCREMENT_CURRENT_STEP",
-    });
   };
 
   return (
     <Layout>
-      <div className="container">
-        <Head>
-          <meta
-            http-equiv="Content-Security-Policy"
-            content="upgrade-insecure-requests"
-          />
-          <title>Image Alchemist</title>
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
+      <Head>
+        <meta
+          http-equiv="Content-Security-Policy"
+          content="upgrade-insecure-requests"
+        />
+        <title>Image Alchemist</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
 
-        <main>
-          <ViewContainer>
-            <Leaderboard />
-            <GameContainer>
-              {state.game.currentStep > 0 && (
-                <GameScore>
-                  <ScoreContainer>
-                    Question {state.game.currentStep}
-                  </ScoreContainer>
-                  <ScoreContainer>
-                    Game Score: {state.game.currentGameScore} / 10
-                  </ScoreContainer>
-                </GameScore>
-              )}
-              {state.game.steps[state.game.currentStep] && (
-                // <MainImageContainer>
-                //   <MainImage
-                //     src={`${
-                //       state.game.steps[state.game.currentStep].url
-                //     }?w=164&h=164&fit=crop&auto=format`}
-                //   />
-                // </MainImageContainer>
-                <GalleryWrapper>
-                  <input
-                    type="radio"
-                    className={styles.radiofront}
-                    name="select-face"
-                  />
-
-                  <input
-                    type="radio"
-                    className={styles.radiotop}
-                    name="select-face"
-                  />
-                  <input
-                    type="radio"
-                    className={styles.radiobottom}
-                    name="select-face"
-                  />
-                  <input
-                    type="radio"
-                    className={styles.radioback}
-                    name="select-face"
-                  />
-                  <div className={styles.separator}></div>
-
-                  <div className={styles.space3d}>
-                    <BoxWrapper className={styles._3dbox}>
-                      <div
-                        className={`${styles._3dface} ${styles._3dfacefront}`}
-                        style={{
-                          background:
-                            "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
-                        }}
-                      ></div>
-                      <div
-                        className={`${styles._3dface} ${styles._3dfacetop}`}
-                        style={{
-                          background:
-                            "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652918859/disco-diffusion-active-tests/b3877c7a-c4dc-4dab-9fd6-56a84e3ffb63.png)",
-                        }}
-                      ></div>
-                      <div
-                        className={`${styles._3dface} ${styles._3dfacebottom}`}
-                        style={{
-                          background:
-                            "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
-                        }}
-                      ></div>
-                      <div
-                        className={`${styles._3dface} ${styles._3dfaceleft}`}
-                        style={{
-                          background:
-                            "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
-                        }}
-                      ></div>
-                      <div
-                        className={`${styles._3dface} ${styles._3dfaceright}`}
-                        style={{
-                          background:
-                            "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
-                        }}
-                      ></div>
-                      <div
-                        className={`${styles._3dface} ${styles._3dfaceback}`}
-                        style={{
-                          background:
-                            "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
-                        }}
-                      ></div>
-                    </BoxWrapper>
-                  </div>
-                </GalleryWrapper>
-              )}
-              {state.game.currentStep === 0 && (
-                <Grid
-                  container
-                  direction="column"
-                  justifyContent="center"
-                  alignItems="center"
-                  rowSpacing={2}
-                  columnSpacing={{ xs: 3, sm: 3, md: 3 }}
-                >
-                  <Grid
-                    item
-                    sx={{
-                      width: "300px",
-                      display: "flex",
-                      "@media (max-width: 768px)": {
-                        width: "80%",
-                        display: "flex",
-                        justifyContent: "center",
-                      },
-                    }}
+      <ViewContainer>
+        <Leaderboard />
+        <GameContainer>
+          {state.game.steps[state.game.currentStep] &&
+            state.game.currentStep < 8 && (
+              <GameScore>
+                <ScoreContainer>
+                  Question {state.game.currentStep + 1}
+                </ScoreContainer>
+                <ScoreContainer>
+                  Game Score: {state.game.currentGameScore} / 8
+                </ScoreContainer>
+              </GameScore>
+            )}
+          {state.game.steps[state.game.currentStep] &&
+            state.game.currentStep < 8 && (
+              <GalleryWrapper>
+                <div className={styles.space3d}>
+                  <BoxWrapper
+                    className={styles._3dbox}
+                    step={state.game.currentStep}
                   >
-                    <TextField
-                      id={"outlined-textarea"}
-                      label={"Enter your Full Name"}
-                      placeholder={"Enter your Full Name"}
-                      value={textInput}
-                      multiline
-                      onChange={handleTextInputChange}
-                      sx={{
-                        color: "black",
-                        borderColor: "black",
-                        width: "300px",
-                        ":hover": {
-                          color: "black",
-                        },
-                        "@media (max-width: 768px)": {
-                          width: "80%",
-                        },
+                    <div
+                      className={`${styles._3dface} ${styles._3dfacefront}`}
+                      style={{
+                        background: `url(${
+                          state.game.steps[state.game.currentStep <= 3 ? 0 : 4]
+                            .url
+                        })`,
                       }}
+                    ></div>
+                    <div
+                      className={`${styles._3dface} ${styles._3dfacetop}`}
+                      style={{
+                        background: `url(${
+                          state.game.steps[state.game.currentStep <= 3 ? 3 : 7]
+                            .url
+                        })`,
+                      }}
+                    ></div>
+                    <div
+                      className={`${styles._3dface} ${styles._3dfacebottom}`}
+                      style={{
+                        background: `url(${
+                          state.game.steps[state.game.currentStep <= 3 ? 1 : 5]
+                            .url
+                        })`,
+                      }}
+                    ></div>
+                    <div
+                      className={`${styles._3dface} ${styles._3dfaceback}`}
+                      style={{
+                        background: `url(${
+                          state.game.steps[state.game.currentStep <= 3 ? 2 : 6]
+                            .url
+                        })`,
+                      }}
+                    ></div>
+                    <div
+                      className={`${styles._3dface} ${styles._3dfaceleft}`}
+                      style={{
+                        background:
+                          "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
+                      }}
+                    ></div>
+                    <div
+                      className={`${styles._3dface} ${styles._3dfaceright}`}
+                      style={{
+                        background:
+                          "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
+                      }}
+                    ></div>
+                  </BoxWrapper>
+                </div>
+              </GalleryWrapper>
+            )}
+          {currentPlayer == null && (
+            <div>
+              <Greeting>Welcome, please enter your name</Greeting>
+              <InputWrapper>
+                <TextField
+                  id={"outlined-textarea"}
+                  label={"Full Name"}
+                  placeholder={"Full Name"}
+                  value={textInput}
+                  multiline
+                  onChange={handleTextInputChange}
+                  sx={{
+                    color: "black",
+                    backgroundColor: "white",
+                    borderColor: "black",
+                    width: "300px",
+                    ":hover": {
+                      color: "black",
+                    },
+                    "@media (max-width: 768px)": {
+                      width: "80%",
+                    },
+                  }}
+                />
+
+                <div
+                  className={styles.playButton}
+                  type={"submit"}
+                  variant={"contained"}
+                  color={"primary"}
+                  onClick={setupGame}
+                  sx={{
+                    backgroundColor: "black",
+                    ":hover": {
+                      backgroundColor: "black",
+                    },
+                  }}
+                >
+                  Play
+                </div>
+              </InputWrapper>
+            </div>
+          )}
+          {state.game.steps[state.game.currentStep] &&
+            state.game.currentStep < 8 && (
+              <QuizFormWrapper onSubmit={handleSubmitQuestion}>
+                <FormControl sx={{ m: 3 }} error={error} variant="standard">
+                  <FormLabel
+                    id="demo-error-radios"
+                    sx={{ paddingBottom: "1rem", fontFamily: "FuturaStdBook" }}
+                  >
+                    Select your best guess at the prompt used to create the
+                    image:
+                  </FormLabel>
+                  <RadioGroup
+                    aria-labelledby="demo-error-radios"
+                    name="quiz"
+                    value={value}
+                    onChange={handleRadioChange}
+                  >
+                    <FormControlLabel
+                      value={
+                        state.game.steps[state.game.currentStep].options[0]
+                      }
+                      label={
+                        state.game.steps[state.game.currentStep].options[0]
+                      }
+                      control={<Radio />}
                     />
-                  </Grid>
-                  <Grid item>
-                    <Button
-                      type={"submit"}
-                      variant={"contained"}
-                      color={"primary"}
-                      onClick={handleSubmit}
-                      sx={{
-                        backgroundColor: "black",
-                        ":hover": {
-                          backgroundColor: "black",
-                        },
-                      }}
-                    >
-                      Submit
-                    </Button>
-                  </Grid>
-                </Grid>
-              )}
-              {state.game.currentStep > 0 && (
-                <QuizFormWrapper onSubmit={handleSubmitQuestion}>
-                  <FormControl sx={{ m: 3 }} error={error} variant="standard">
-                    <FormLabel id="demo-error-radios">
-                      Select your best guess at the prompt used to create the
-                      image:
-                    </FormLabel>
-                    <RadioGroup
-                      aria-labelledby="demo-error-radios"
-                      name="quiz"
-                      value={value}
-                      onChange={handleRadioChange}
-                    >
-                      <FormControlLabel
-                        value={
-                          state.game.steps[state.game.currentStep].options[0]
-                        }
-                        label={
-                          state.game.steps[state.game.currentStep].options[0]
-                        }
-                        control={<Radio />}
-                      />
-                      <FormControlLabel
-                        value={
-                          state.game.steps[state.game.currentStep].options[1]
-                        }
-                        label={
-                          state.game.steps[state.game.currentStep].options[1]
-                        }
-                        control={<Radio />}
-                      />
-                      <FormControlLabel
-                        value={
-                          state.game.steps[state.game.currentStep].options[2]
-                        }
-                        label={
-                          state.game.steps[state.game.currentStep].options[2]
-                        }
-                        control={<Radio />}
-                      />
-                      <FormControlLabel
-                        value={
-                          state.game.steps[state.game.currentStep].options[3]
-                        }
-                        label={
-                          state.game.steps[state.game.currentStep].options[3]
-                        }
-                        control={<Radio />}
-                      />
-                    </RadioGroup>
-                    <FormHelperText>{helperText}</FormHelperText>
-                    <Button
-                      sx={{ mt: 1, mr: 1 }}
-                      type="submit"
-                      variant="outlined"
-                    >
-                      Check Answer
-                    </Button>
-                  </FormControl>
-                </QuizFormWrapper>
-              )}
-              {state.game.currentStep > 10 && (
-                <>
-                  <Title>{`Game Over, ${currentPlayer.username}`}</Title>
-                  <Title>{`Your Score: ${currentPlayer.points}`}</Title>
-                </>
-              )}
-            </GameContainer>
-          </ViewContainer>
-        </main>
-      </div>
+                    <FormControlLabel
+                      value={
+                        state.game.steps[state.game.currentStep].options[1]
+                      }
+                      label={
+                        state.game.steps[state.game.currentStep].options[1]
+                      }
+                      control={<Radio />}
+                    />
+                    <FormControlLabel
+                      value={
+                        state.game.steps[state.game.currentStep].options[2]
+                      }
+                      label={
+                        state.game.steps[state.game.currentStep].options[2]
+                      }
+                      control={<Radio />}
+                    />
+                    <FormControlLabel
+                      value={
+                        state.game.steps[state.game.currentStep].options[3]
+                      }
+                      label={
+                        state.game.steps[state.game.currentStep].options[3]
+                      }
+                      control={<Radio />}
+                    />
+                  </RadioGroup>
+                  <FormHelperText>{helperText}</FormHelperText>
+                  <Button
+                    sx={{ mt: 1, mr: 1 }}
+                    type="submit"
+                    variant="outlined"
+                  >
+                    Check Answer
+                  </Button>
+                </FormControl>
+              </QuizFormWrapper>
+            )}
+          {state.game.currentStep === 8 && (
+            <>
+              <Title>{`Game Over, ${currentPlayer.username}`}</Title>
+              <Title>{`Your Score: ${currentPlayer.points}`}</Title>
+              <Button onClick={onPlayAgain}>Play Again</Button>
+            </>
+          )}
+        </GameContainer>
+      </ViewContainer>
     </Layout>
   );
 }

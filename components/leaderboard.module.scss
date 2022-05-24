@@ -1,43 +1,6 @@
-#parallax-container {
-  perspective: 1200px;
-  height: 100vh;
-  width: 100vw;
-  transform-style: preserve-3d;
-}
-
-#parallax-container img {
-  transform-origin: center;
-  box-shadow: 0 0 12px 12px rgba(0, 0, 0, 0.4);
-  position: relative;
-}
-
-// @import "compass/css3";
-
-$cubeWidth: 400px;
-$cubeHeight: 400px;
+$cubeWidth: 300px;
+$cubeHeight: 300px;
 $cubeDepth: $cubeHeight;
-
-// body {
-//   color: #333;
-//   padding: 20px;
-//   text-align: center;
-//   font-family: Arial;
-// }
-
-.separator {
-  margin-top: 40px;
-}
-
-.twitter {
-  color: #fff;
-  text-decoration: none;
-  border-radius: 4px;
-  background: #00aced;
-  display: inline-block;
-  padding: 10px 8px;
-  margin-bottom: 15px;
-  font-weight: bold;
-}
 
 /* 3D Cube */
 .space3d {
