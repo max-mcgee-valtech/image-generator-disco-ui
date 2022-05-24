@@ -3,7 +3,7 @@ import apiReducer from "./gameReducer";
 
 const initialState = {
   game: {
-    players: [],
+    currentGameScore: 0,
     numQuestions: 1,
     currentStep: 0,
     steps: [],

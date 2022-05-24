@@ -17,6 +17,15 @@ const apiReducer = (state = {}, action) => {
         game: { ...state.game, currentStep: state.game.currentStep + 1 },
       };
 
+    case "INCREMENT_CURRENT_GAME_POINTS":
+      return {
+        ...state,
+        game: {
+          ...state.game,
+          currentGameScore: state.game.currentGameScore + 1,
+        },
+      };
+
     default:
       return state;
   }

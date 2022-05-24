@@ -75,16 +75,19 @@ export const Caption = styled.div`
   }
 `;
 
-export const SkeletonContainerDesktop = styled.div`
-  @media screen and (max-width: 600px) {
-    display: none;
-  }
+export const Title = styled.div``;
+
+export const ScoreContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
 `;
 
-export const SkeletonContainerMobile = styled.div`
-  @media screen and (min-width: 600px) {
-    display: none;
-  }
+export const GameScore = styled.div`
+  display: flex;
+  justify-content: space-around;
+  padding: 2rem 0;
+  width: 100%;
 `;
 
 export async function getServerSideProps(context) {
@@ -145,7 +148,9 @@ export default function Game(props) {
     let updates = {};
 
     updates["/scores/" + newPostKey] = postData;
-
+    dispatch({
+      type: "INCREMENT_CURRENT_GAME_POINTS",
+    });
     return update(ref(db), updates);
   }
 
@@ -253,6 +258,17 @@ export default function Game(props) {
           <div>
             <Box sx={{ width: "100%" }}>
               <Leaderboard />
+
+              {state.game.currentStep > 0 && (
+                <GameScore>
+                  <ScoreContainer>
+                    Question {state.game.currentStep}
+                  </ScoreContainer>
+                  <ScoreContainer>
+                    Game Score: {state.game.currentGameScore} / 10
+                  </ScoreContainer>
+                </GameScore>
+              )}
               {state.game.steps[state.game.currentStep] && (
                 <MainImageContainer>
                   <MainImage
@@ -381,6 +397,12 @@ export default function Game(props) {
                     </Button>
                   </FormControl>
                 </QuizFormWrapper>
+              )}
+              {state.game.currentStep > 10 && (
+                <>
+                  <Title>{`Game Over, ${currentPlayer.username}`}</Title>
+                  <Title>{`Your Score: ${currentPlayer.points}`}</Title>
+                </>
               )}
             </Box>
           </div>
