@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useContext } from "react";
 
-// import {
-//   getDatabase,
-//   ref,
-//   onValue,
-//   child,
-//   push,
-//   update,
-// } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  query,
+  orderByChild,
+  onValue,
+  limitToLast,
+  update,
+  push,
+  child,
+} from "firebase/database";
 
 import cloudinary from "cloudinary";
 import {
@@ -108,21 +111,11 @@ export async function getServerSideProps(context) {
 }
 
 export default function Game(props) {
-  // const db = getDatabase();
-  // const scoresRef = ref(db, "scores");
-  // onValue(scoresRef, (snapshot) => {
-  //   const data = snapshot.val();
-  //   console.log(data);
-  //   // updateStarCount(postElement, data);
-  // });
   const { state, dispatch } = useContext(ApiContext);
-
-  const [recentImages, setRecentImages] = useState([]);
   const [textInput, setTextInput] = useState("");
-  const [numQuestions, setNumQuestions] = React.useState(0);
-  //   const [game, setGame] = useState({
-  //     currentStep: 0,
-  //   });
+  const [currentPlayer, setCurrentPlayer] = useState(null);
+  const database = getDatabase();
+
   useEffect(() => {
     console.log(state);
   }, [state]);
@@ -136,17 +129,21 @@ export default function Game(props) {
     setError(false);
   };
 
-  function writeNewPost(uid, username, picture, title, body) {
+  function incrementPoint() {
+    console.log("CURRENT PLAYer", currentPlayer);
     const db = getDatabase();
     // A post entry.
+
+    const newPostKey = currentPlayer?.key ?? push(child(ref(db), "scores")).key;
+
     const postData = {
-      username: "Jack T",
-      points: 21,
+      username: currentPlayer?.username ?? textInput,
+      points: currentPlayer?.points ? currentPlayer.points + 1 : 1,
     };
-    const newPostKey = push(child(ref(db), "scores")).key;
 
     // Write the new post's data simultaneously in the posts list and the user's post list.
-    const updates = {};
+    let updates = {};
+
     updates["/scores/" + newPostKey] = postData;
 
     return update(ref(db), updates);
@@ -157,6 +154,7 @@ export default function Game(props) {
 
     if (value == state.game.steps[state.game.currentStep].correctTextPrompt) {
       setHelperText("You got it!");
+      incrementPoint();
       setError(false);
     } else {
       setHelperText("Sorry, wrong answer!");
@@ -175,39 +173,56 @@ export default function Game(props) {
     setTextInput(event.target.value);
   };
 
-  useEffect(() => {
-    console.log(props.images.images);
-    console.log(numQuestions);
-    setRecentImages(props.images.images.slice(0, numQuestions));
-  }, [numQuestions]);
-
   const handleSubmit = async () => {
-    const listOfPlayers = textInput.split(",");
-    const numQuestions = listOfPlayers.length * 3;
+    const topUserPostsRef = query(ref(database, "scores"));
+
+    //To add a listener you can use the onValue() method like,
+    onValue(query(topUserPostsRef), (snapshot) => {
+      snapshot.forEach(
+        (childSnapshot) => {
+          const childKey = childSnapshot.key;
+          const childData = childSnapshot.val();
+          if (childData.username == textInput) {
+            console.log("MATCHES PLAYER", childData);
+            setCurrentPlayer({ ...childData, key: childKey });
+          }
+        },
+        {
+          onlyOnce: true,
+        }
+      );
+    });
+
+    const numQuestions = 10;
     dispatch({
       type: "UPDATE_NUM_QUESTIONS",
       payload: numQuestions,
     });
 
-    const shuffled = props.images.images
+    const randomizedImages = props.images.images
       .filter((img) => img.context?.caption)
       .sort(() => 0.5 - Math.random());
-    let imagesWithCaptions = shuffled.slice(0, numQuestions);
+    let imagesForQuiz = randomizedImages.slice(0, numQuestions);
 
-    const shuffledCaptions = props.images.images
-      .filter((img) => img.context?.caption)
-      .map((captionImg) => captionImg.context.caption);
+    const cleanedImages = imagesForQuiz.map((quizImage) => {
+      const randomCaptions = randomizedImages
+        .filter(
+          (randImg) =>
+            randImg.context?.caption &&
+            quizImage.context?.caption !== randImg.context?.caption
+        )
+        .map((i) => i.context.caption)
+        .sort(() => 0.5 - Math.random());
 
-    const cleanedImages = imagesWithCaptions.map((image) => {
-      if (image.context?.caption) {
+      if (quizImage.context?.caption) {
         return {
-          filename: image.filename,
+          filename: quizImage.filename,
           currentStep: 1,
-          url: image.url,
-          correctTextPrompt: image.context?.caption ?? "",
-          options: shuffledCaptions
+          url: quizImage.url,
+          correctTextPrompt: quizImage.context?.caption ?? "",
+          options: randomCaptions
             .slice(0, 3)
-            .concat(image.context?.caption ?? "")
+            .concat(quizImage.context?.caption ?? "")
             .sort(() => 0.5 - Math.random()),
         };
       }
@@ -237,6 +252,7 @@ export default function Game(props) {
         <main>
           <div>
             <Box sx={{ width: "100%" }}>
+              <Leaderboard />
               {state.game.steps[state.game.currentStep] && (
                 <MainImageContainer>
                   <MainImage
@@ -366,10 +382,8 @@ export default function Game(props) {
                   </FormControl>
                 </QuizFormWrapper>
               )}
-              <Leaderboard />
             </Box>
           </div>
-          <Button onClick={writeNewPost}>TEST</Button>
         </main>
       </div>
     </Layout>
