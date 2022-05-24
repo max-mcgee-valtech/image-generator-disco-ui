@@ -21,6 +21,10 @@ const GalleryWrapper = styled.div`
   justify-content: center; */
 `;
 
+const BoxWrapper = styled.div`
+  transform: rotateY(180deg);
+`;
+
 export default function Game(props) {
   const isAvailable = useRef(false);
 
@@ -144,24 +148,50 @@ export default function Game(props) {
             <div className={styles.separator}></div>
 
             <div className={styles.space3d}>
-              <div className={styles._3dbox}>
+              <BoxWrapper className={styles._3dbox}>
                 <div
                   className={`${styles._3dface} ${styles._3dfacefront}`}
+                  style={{
+                    background:
+                      "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
+                  }}
                 ></div>
-                <div className={`${styles._3dface} ${styles._3dfacetop}`}></div>
+                <div
+                  className={`${styles._3dface} ${styles._3dfacetop}`}
+                  style={{
+                    background:
+                      "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
+                  }}
+                ></div>
                 <div
                   className={`${styles._3dface} ${styles._3dfacebottom}`}
+                  style={{
+                    background:
+                      "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
+                  }}
                 ></div>
                 <div
                   className={`${styles._3dface} ${styles._3dfaceleft}`}
+                  style={{
+                    background:
+                      "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
+                  }}
                 ></div>
                 <div
                   className={`${styles._3dface} ${styles._3dfaceright}`}
+                  style={{
+                    background:
+                      "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
+                  }}
                 ></div>
                 <div
                   className={`${styles._3dface} ${styles._3dfaceback}`}
+                  style={{
+                    background:
+                      "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
+                  }}
                 ></div>
-              </div>
+              </BoxWrapper>
             </div>
           </GalleryWrapper>
         </main>

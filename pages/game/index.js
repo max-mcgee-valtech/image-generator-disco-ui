@@ -35,6 +35,7 @@ import styled from "styled-components";
 import Head from "next/head";
 import Link from "next/link";
 
+import styles from "./game.module.scss";
 import Layout from "../../components/layout";
 import Leaderboard from "../../components/leaderboard";
 import { ApiContext } from "../../utils/gameProvider";
@@ -73,6 +74,29 @@ export const Caption = styled.div`
   @media screen and (max-width: 600px) {
     max-width: 300px;
   }
+`;
+
+const GalleryWrapper = styled.div`
+  border: 1px blue solid;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const BoxWrapper = styled.div`
+  /* transform: rotateY(180deg); */
+`;
+
+const GameContainer = styled.div`
+  background: lightgreen;
+`;
+
+const ViewContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
 `;
 
 export const Title = styled.div``;
@@ -255,10 +279,9 @@ export default function Game(props) {
         </Head>
 
         <main>
-          <div>
-            <Box sx={{ width: "100%" }}>
-              <Leaderboard />
-
+          <ViewContainer>
+            <Leaderboard />
+            <GameContainer>
               {state.game.currentStep > 0 && (
                 <GameScore>
                   <ScoreContainer>
@@ -270,13 +293,84 @@ export default function Game(props) {
                 </GameScore>
               )}
               {state.game.steps[state.game.currentStep] && (
-                <MainImageContainer>
-                  <MainImage
-                    src={`${
-                      state.game.steps[state.game.currentStep].url
-                    }?w=164&h=164&fit=crop&auto=format`}
+                // <MainImageContainer>
+                //   <MainImage
+                //     src={`${
+                //       state.game.steps[state.game.currentStep].url
+                //     }?w=164&h=164&fit=crop&auto=format`}
+                //   />
+                // </MainImageContainer>
+                <GalleryWrapper>
+                  <input
+                    type="radio"
+                    className={styles.radiofront}
+                    name="select-face"
                   />
-                </MainImageContainer>
+
+                  <input
+                    type="radio"
+                    className={styles.radiotop}
+                    name="select-face"
+                  />
+                  <input
+                    type="radio"
+                    className={styles.radiobottom}
+                    name="select-face"
+                  />
+                  <input
+                    type="radio"
+                    className={styles.radioback}
+                    name="select-face"
+                  />
+                  <div className={styles.separator}></div>
+
+                  <div className={styles.space3d}>
+                    <BoxWrapper className={styles._3dbox}>
+                      <div
+                        className={`${styles._3dface} ${styles._3dfacefront}`}
+                        style={{
+                          background:
+                            "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
+                        }}
+                      ></div>
+                      <div
+                        className={`${styles._3dface} ${styles._3dfacetop}`}
+                        style={{
+                          background:
+                            "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652918859/disco-diffusion-active-tests/b3877c7a-c4dc-4dab-9fd6-56a84e3ffb63.png)",
+                        }}
+                      ></div>
+                      <div
+                        className={`${styles._3dface} ${styles._3dfacebottom}`}
+                        style={{
+                          background:
+                            "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
+                        }}
+                      ></div>
+                      <div
+                        className={`${styles._3dface} ${styles._3dfaceleft}`}
+                        style={{
+                          background:
+                            "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
+                        }}
+                      ></div>
+                      <div
+                        className={`${styles._3dface} ${styles._3dfaceright}`}
+                        style={{
+                          background:
+                            "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
+                        }}
+                      ></div>
+                      <div
+                        className={`${styles._3dface} ${styles._3dfaceback}`}
+                        style={{
+                          background:
+                            "url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png)",
+                        }}
+                      ></div>
+                    </BoxWrapper>
+                  </div>
+                </GalleryWrapper>
               )}
               {state.game.currentStep === 0 && (
                 <Grid
@@ -404,8 +498,8 @@ export default function Game(props) {
                   <Title>{`Your Score: ${currentPlayer.points}`}</Title>
                 </>
               )}
-            </Box>
-          </div>
+            </GameContainer>
+          </ViewContainer>
         </main>
       </div>
     </Layout>

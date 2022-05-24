@@ -13,8 +13,8 @@
 
 // @import "compass/css3";
 
-$cubeWidth: 600px;
-$cubeHeight: 392px;
+$cubeWidth: 400px;
+$cubeHeight: 400px;
 $cubeDepth: $cubeHeight;
 
 // body {
@@ -64,7 +64,6 @@ $cubeDepth: $cubeHeight;
 ._3dface {
   overflow: hidden;
   position: absolute;
-
   border: 1px solid #888;
   background: #fff;
   box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.1), 0 0 50px rgba(0, 0, 0, 0.3);
@@ -143,24 +142,29 @@ $cubeDepth: $cubeHeight;
 ._3dfaceleft {
   // background: url(https://res.cloudinary.com/detzng4ks/image/upload/v1653340143/disco-diffusion-active-tests/2e51b771-185d-475e-b2f9-3ac7f2aae878.png);
   background-size: auto 100% !important;
+  background-repeat: no-repeat !important;
 }
 
 ._3dfaceright {
   // background: url(https://res.cloudinary.com/detzng4ks/image/upload/v1653342188/disco-diffusion-active-tests/513f5c5e-8de8-44d5-a785-ad161646039e.png);
   background-size: auto 100% !important;
+  background-repeat: no-repeat !important;
 }
 
 ._3dfacetop {
   // background: url(https://res.cloudinary.com/detzng4ks/image/upload/v1652919878/disco-diffusion-active-tests/8da05abb-d4b2-4579-82c0-d9d0af122f61.png);
   background-size: auto 100% !important;
+  background-repeat: no-repeat !important;
 }
 
 ._3dfacebottom {
   // background: url(https://res.cloudinary.com/detzng4ks/image/upload/v1652853055/disco-diffusion-active-tests/2f36fdfc-258d-467d-931d-d4869dae10e9.png);
   background-size: auto 100% !important;
+  background-repeat: no-repeat !important;
 }
 
 ._3dfaceback {
   // background: url(https://res.cloudinary.com/detzng4ks/image/upload/v1652916796/disco-diffusion-active-tests/3a7d27d6-bc2e-4400-b1dd-d9857cd8e871.png);
   background-size: auto 100% !important;
+  background-repeat: no-repeat !important;
 }
