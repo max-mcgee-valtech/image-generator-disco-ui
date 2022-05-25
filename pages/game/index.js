@@ -1,6 +1,5 @@
+import React, { useState, useContext } from "react";
 // https://codepen.io/mxmcg/pen/MWQEzoV
-
-import React, { useState, useEffect, useContext } from "react";
 
 import {
   getDatabase,
@@ -38,15 +37,10 @@ const QuizFormWrapper = styled.form`
   display: flex;
   justify-content: center;
   padding-top: 9rem;
-  width: 800px;
-`;
-
-export const Caption = styled.div`
-  max-width: 600px;
-  line-height: 1.5;
-  padding-top: 2rem;
-  @media screen and (max-width: 600px) {
-    max-width: 300px;
+  width: 650px;
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    padding-top: 5rem;
   }
 `;
 
@@ -55,6 +49,117 @@ const GalleryWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+`;
+
+const GameContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  @media screen and (max-width: 768px) {
+    margin-top: 11rem;
+    padding: 0 1.5rem;
+  }
+`;
+
+const CheckAnswerButton = styled(Button)`
+  padding: 0.6rem 3rem;
+  margin-bottom: 0.625rem;
+  font-weight: 500;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border: 5px solid #06477b;
+  -webkit-box-shadow: 3px 4px #0f9;
+  box-shadow: 3px 4px #0f9;
+  color: #fff;
+  background-color: #000;
+  white-space: nowrap;
+  cursor: pointer;
+  overflow: hidden;
+  vertical-align: middle;
+  text-transform: uppercase;
+  position: relative;
+  outline: 0;
+  letter-spacing: 0.0625rem;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+
+  &:hover {
+    border: 5px solid #000;
+    background-color: #0f9;
+    color: #000;
+  }
+`;
+
+const Greeting = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding: 2rem 0;
+  justify-content: center;
+`;
+
+const ViewContainer = styled.div`
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  margin: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  min-width: 20rem;
+  overflow-anchor: none;
+  -webkit-overflow-scrolling: touch;
+  background-size: 8px 8px;
+  background-image: linear-gradient(90deg, #f5f5f5 6px, transparent 1%),
+    linear-gradient(#f5f5f5 6px, transparent 1%);
+  background-color: #e0dad3;
+`;
+
+const GameOverWrapper = styled.div`
+  padding: 4rem;
+`;
+
+export const Title = styled.div`
+  font-size: 22px;
+  padding-bottom: 1rem;
+  &:nth-child(2) {
+    padding-bottom: 2rem;
+  }
+`;
+
+const InputWrapper = styled.div`
+  display: flex;
+  flex-direction: center;
+  justify-content: center;
+  @media screen and (max-width: 768px) {
+    margin-right: 4rem;
+    margin-top: 0rem;
+  }
+`;
+
+export const ScoreContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+`;
+
+export const GameScore = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 600px;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const BoxWrapper = styled.div`
@@ -81,62 +186,6 @@ const BoxWrapper = styled.div`
         return "";
     }
   }};
-`;
-
-const GameContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const Greeting = styled.div`
-  display: flex;
-  flex-direction: row;
-  padding: 2rem 0;
-  justify-content: center;
-`;
-
-const ViewContainer = styled.div`
-  position: relative;
-  height: 100vh;
-  width: 100%;
-  margin: 0;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
-  flex-direction: column;
-
-  min-width: 20rem;
-  overflow-anchor: none;
-  -webkit-overflow-scrolling: touch;
-  background-size: 8px 8px;
-  background-image: linear-gradient(90deg, #f5f5f5 6px, transparent 1%),
-    linear-gradient(#f5f5f5 6px, transparent 1%);
-  background-color: #e0dad3;
-`;
-
-export const Title = styled.div``;
-
-const InputWrapper = styled.div`
-  display: flex;
-  flex-direction: center;
-  justify-content: center;
-`;
-
-export const ScoreContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  padding: 2rem 0;
-`;
-
-export const GameScore = styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 600px;
 `;
 
 export async function getServerSideProps(context) {
@@ -180,13 +229,12 @@ export default function Game(props) {
   };
 
   const [value, setValue] = React.useState("");
-  const [error, setError] = React.useState(false);
+  const [message, setMessage] = React.useState("default");
   const [helperText, setHelperText] = React.useState("Choose wisely");
 
   const handleRadioChange = (event) => {
     setValue(event.target.value);
     setHelperText(" ");
-    setError(false);
   };
 
   function incrementPoint() {
@@ -212,15 +260,17 @@ export default function Game(props) {
 
     if (value == state.game.steps[state.game.currentStep].correctTextPrompt) {
       setHelperText("You got it!");
+      setMessage("correct");
       incrementPoint();
-      setError(false);
     } else {
+      setMessage("incorrect");
       setHelperText("Sorry, wrong answer!");
-      setError(false);
     }
 
     setTimeout(() => {
       setValue("");
+      setHelperText("Choose wisely");
+      setMessage("default");
       dispatch({
         type: "INCREMENT_CURRENT_STEP",
       });
@@ -288,6 +338,22 @@ export default function Game(props) {
       type: "SET_GAME_STEPS",
       payload: cleanedImages,
     });
+  };
+
+  const multipleChoiceOptions =
+    state.game.steps[state.game.currentStep]?.options;
+
+  const multChoiceStyle = (index) => {
+    return {
+      color:
+        message == "correct" &&
+        state.game.steps[state.game.currentStep].options[index] === value
+          ? "#3B9C75"
+          : message == "incorrect" &&
+            state.game.steps[state.game.currentStep].options[index] === value
+          ? "red"
+          : "#000",
+    };
   };
 
   return (
@@ -397,7 +463,7 @@ export default function Game(props) {
                       color: "black",
                     },
                     "@media (max-width: 768px)": {
-                      width: "80%",
+                      width: "240px",
                     },
                   }}
                 />
@@ -423,74 +489,87 @@ export default function Game(props) {
           {state.game.steps[state.game.currentStep] &&
             state.game.currentStep < 8 && (
               <QuizFormWrapper onSubmit={handleSubmitQuestion}>
-                <FormControl sx={{ m: 3 }} error={error} variant="standard">
+                <FormControl sx={{ m: 3, margin: "2rem 0" }} variant="standard">
                   <FormLabel
                     id="demo-error-radios"
-                    sx={{ paddingBottom: "1rem", fontFamily: "FuturaStdBook" }}
+                    sx={{
+                      paddingBottom: "0.5rem",
+                      fontFamily: "FuturaStd-Heavy",
+                      color: "black",
+                      fontSize: "18px",
+                    }}
                   >
                     Select your best guess at the prompt used to create the
                     image:
                   </FormLabel>
+                  <FormHelperText
+                    sx={{
+                      paddingBottom: "0.5rem",
+                      fontSize: "14px",
+                      color:
+                        message == "correct"
+                          ? "#3B9C75"
+                          : message == "incorrect"
+                          ? "red"
+                          : "black",
+                      fontWeight: message == "default" ? "normal" : "bold",
+                    }}
+                  >
+                    {helperText}
+                  </FormHelperText>
                   <RadioGroup
                     aria-labelledby="demo-error-radios"
                     name="quiz"
                     value={value}
                     onChange={handleRadioChange}
+                    sx={{
+                      paddingBottom: "1rem",
+                    }}
                   >
                     <FormControlLabel
-                      value={
-                        state.game.steps[state.game.currentStep].options[0]
-                      }
-                      label={
-                        state.game.steps[state.game.currentStep].options[0]
-                      }
+                      value={multipleChoiceOptions[0]}
+                      label={multipleChoiceOptions[0]}
                       control={<Radio />}
+                      sx={multChoiceStyle(0)}
                     />
                     <FormControlLabel
-                      value={
-                        state.game.steps[state.game.currentStep].options[1]
-                      }
-                      label={
-                        state.game.steps[state.game.currentStep].options[1]
-                      }
+                      value={multipleChoiceOptions[1]}
+                      label={multipleChoiceOptions[1]}
                       control={<Radio />}
+                      sx={multChoiceStyle(1)}
                     />
                     <FormControlLabel
-                      value={
-                        state.game.steps[state.game.currentStep].options[2]
-                      }
-                      label={
-                        state.game.steps[state.game.currentStep].options[2]
-                      }
+                      value={multipleChoiceOptions[2]}
+                      label={multipleChoiceOptions[2]}
                       control={<Radio />}
+                      sx={multChoiceStyle(2)}
                     />
                     <FormControlLabel
-                      value={
-                        state.game.steps[state.game.currentStep].options[3]
-                      }
-                      label={
-                        state.game.steps[state.game.currentStep].options[3]
-                      }
+                      value={multipleChoiceOptions[3]}
+                      label={multipleChoiceOptions[3]}
                       control={<Radio />}
+                      sx={multChoiceStyle(3)}
                     />
                   </RadioGroup>
-                  <FormHelperText>{helperText}</FormHelperText>
-                  <Button
+
+                  <CheckAnswerButton
                     sx={{ mt: 1, mr: 1 }}
                     type="submit"
                     variant="outlined"
                   >
                     Check Answer
-                  </Button>
+                  </CheckAnswerButton>
                 </FormControl>
               </QuizFormWrapper>
             )}
           {state.game.currentStep === 8 && (
-            <>
+            <GameOverWrapper>
               <Title>{`Game Over, ${currentPlayer.username}`}</Title>
-              <Title>{`Your Score: ${currentPlayer.points}`}</Title>
-              <Button onClick={onPlayAgain}>Play Again</Button>
-            </>
+              <Title>{`Your All-Time Score: ${currentPlayer.points} `}</Title>
+              <CheckAnswerButton onClick={onPlayAgain}>
+                Play Again
+              </CheckAnswerButton>
+            </GameOverWrapper>
           )}
         </GameContainer>
       </ViewContainer>

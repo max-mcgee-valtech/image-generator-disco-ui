@@ -2,11 +2,9 @@ $cubeWidth: 300px;
 $cubeHeight: 300px;
 $cubeDepth: $cubeHeight;
 
-@media screen and (max-width: 768px) {
-  $cubeWidth: 150px;
-  $cubeHeight: 150px;
-  $cubeDepth: $cubeHeight;
-}
+$cubeWidthMobile: 150px;
+$cubeHeightMobile: 150px;
+$cubeDepthMobile: $cubeHeightMobile;
 
 /* 3D Cube */
 .space3d {
@@ -135,4 +133,78 @@ $cubeDepth: $cubeHeight;
   // background: url(https://res.cloudinary.com/detzng4ks/image/upload/v1652916796/disco-diffusion-active-tests/3a7d27d6-bc2e-4400-b1dd-d9857cd8e871.png);
   background-size: auto 100% !important;
   background-repeat: no-repeat !important;
+}
+
+@media screen and (max-width: 768px) {
+  /* 3D Cube */
+  .space3d {
+    perspective: 1000px;
+    width: $cubeWidthMobile;
+    height: $cubeHeightMobile;
+    text-align: center;
+    display: inline-block;
+    padding-top: 6rem;
+  }
+
+  ._3dbox {
+    display: inline-block;
+    transition: all 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: center;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transform: rotateX(-15deg) rotateY(15deg);
+  }
+
+  ._3dface {
+    overflow: hidden;
+    position: absolute;
+    border: 1px solid #888;
+    background: #fff;
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.1), 0 0 50px rgba(0, 0, 0, 0.3);
+    color: #333;
+    line-height: $cubeWidthMobile;
+    opacity: 0.9;
+  }
+
+  ._3dfacefront {
+    width: $cubeWidthMobile;
+    height: $cubeHeightMobile;
+    transform: translate3d(0, 0, $cubeDepthMobile / 2);
+  }
+
+  ._3dfacetop {
+    width: $cubeWidthMobile;
+    height: $cubeDepthMobile;
+    transform: rotateX(90deg) translate3d(0, 0, $cubeHeightMobile / 2);
+  }
+
+  ._3dfacebottom {
+    width: $cubeWidthMobile;
+    height: $cubeDepthMobile;
+    transform: rotateX(-90deg) translate3d(0, 0, $cubeHeightMobile / 2);
+  }
+
+  ._3dfaceleft {
+    width: $cubeDepthMobile;
+    height: $cubeHeightMobile;
+    left: 50%;
+    margin-left: -$cubeDepthMobile / 2;
+    transform: rotateY(-90deg) translate3d(0, 0, $cubeWidthMobile / 2);
+  }
+
+  ._3dfaceright {
+    width: $cubeDepthMobile;
+    height: $cubeHeightMobile;
+    left: 50%;
+    margin-left: -$cubeDepthMobile / 2;
+    transform: rotateY(90deg) translate3d(0, 0, $cubeWidthMobile / 2);
+  }
+
+  ._3dfaceback {
+    width: $cubeWidthMobile;
+    height: $cubeHeightMobile;
+    transform: rotateY(180deg) translate3d(0, 0, $cubeDepthMobile / 2);
+  }
 }

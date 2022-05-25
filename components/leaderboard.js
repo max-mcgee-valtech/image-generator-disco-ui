@@ -18,9 +18,9 @@ import {
 
 const Title = styled.h2`
   font-size: 20px;
-  height: 40px;
+  height: 13px;
   position: relative;
-  top: -115px;
+  top: -136px;
 `;
 
 const ListItemWrapper = styled.div`
@@ -49,6 +49,9 @@ const Container = styled.div`
   perspective: 1000px;
   flex-direction: column;
   align-items: center;
+  @media screen and (max-width: 768px) {
+    width: 150px;
+  }
 `;
 
 export default function InsetList() {
