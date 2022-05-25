@@ -68,7 +68,7 @@ export default function InsetList() {
         (childSnapshot) => {
           const childKey = childSnapshot.key;
           const childData = childSnapshot.val();
-          console.log("childData", childData);
+
           allScores.push(childData);
         },
         {
@@ -78,8 +78,6 @@ export default function InsetList() {
       setLeaderBoard(allScores.reverse());
     });
   }, []);
-
-  console.log("all scores", leaderboard);
 
   return (
     <Container>

@@ -168,9 +168,9 @@ export default function Game(props) {
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const database = getDatabase();
 
-  useEffect(() => {
-    console.log(state);
-  }, [state]);
+  // useEffect(() => {
+  //   console.log(state);
+  // }, [state]);
 
   const onPlayAgain = () => {
     dispatch({
@@ -191,7 +191,6 @@ export default function Game(props) {
 
   function incrementPoint() {
     const db = getDatabase();
-
     const newPostKey = currentPlayer?.key ?? push(child(ref(db), "scores")).key;
 
     const postData = {
@@ -234,22 +233,21 @@ export default function Game(props) {
 
   const setupGame = async () => {
     const topUserScoresRef = query(ref(database, "scores"));
-
+    let playerMatched = false;
     onValue(query(topUserScoresRef), (snapshot) => {
-      snapshot.forEach(
-        (childSnapshot) => {
-          const childKey = childSnapshot.key;
-          const childData = childSnapshot.val();
-          if (childData.username == textInput) {
-            console.log("MATCHES PLAYER", childData);
-            setCurrentPlayer({ ...childData, key: childKey });
-          }
-        },
-        {
-          onlyOnce: true,
+      snapshot.forEach((childSnapshot) => {
+        const childKey = childSnapshot.key;
+        const childData = childSnapshot.val();
+        if (childData.username == textInput) {
+          console.log("MATCHES PLAYER", { ...childData, key: childKey });
+          setCurrentPlayer({ ...childData, key: childKey });
+          playerMatched = true;
+          console.log("current NOW", currentPlayer);
         }
-      );
-      if (currentPlayer == null) {
+      });
+      console.log("currplayer", playerMatched);
+      if (!playerMatched) {
+        console.log("WRONG spot");
         setCurrentPlayer({ username: textInput, points: 0 });
       }
     });
