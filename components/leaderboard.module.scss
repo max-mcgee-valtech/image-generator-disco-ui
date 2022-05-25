@@ -2,6 +2,12 @@ $cubeWidth: 300px;
 $cubeHeight: 300px;
 $cubeDepth: $cubeHeight;
 
+@media screen and (max-width: 768px) {
+  $cubeWidth: 150px;
+  $cubeHeight: 150px;
+  $cubeDepth: $cubeHeight;
+}
+
 /* 3D Cube */
 .space3d {
   perspective: 1000px;

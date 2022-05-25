@@ -239,15 +239,12 @@ export default function Game(props) {
         const childKey = childSnapshot.key;
         const childData = childSnapshot.val();
         if (childData.username == textInput) {
-          console.log("MATCHES PLAYER", { ...childData, key: childKey });
           setCurrentPlayer({ ...childData, key: childKey });
           playerMatched = true;
-          console.log("current NOW", currentPlayer);
         }
       });
-      console.log("currplayer", playerMatched);
+
       if (!playerMatched) {
-        console.log("WRONG spot");
         setCurrentPlayer({ username: textInput, points: 0 });
       }
     });
@@ -259,7 +256,7 @@ export default function Game(props) {
     });
 
     const randomizedImages = props.images.images
-      .filter((img) => img.context?.caption)
+      .filter((img) => img.context?.caption && img.context?.alt !== "pending")
       .sort(() => 0.5 - Math.random());
     let imagesForQuiz = randomizedImages.slice(0, numQuestions);
 

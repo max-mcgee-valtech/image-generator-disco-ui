@@ -49,18 +49,6 @@ export const Caption = styled.div`
   }
 `;
 
-export const SkeletonContainerDesktop = styled.div`
-  @media screen and (max-width: 600px) {
-    display: none;
-  }
-`;
-
-export const SkeletonContainerMobile = styled.div`
-  @media screen and (min-width: 600px) {
-    display: none;
-  }
-`;
-
 export async function getServerSideProps(context) {
   cloudinary.config({
     cloud_name: "detzng4ks",
@@ -137,22 +125,18 @@ export default function Home(props) {
                 <Link href={`/view/${recentImages[0].filename}`}>
                   <MainImageContainer>
                     {recentImages[0].context.alt === "pending" ? (
-                      <>
-                        <SkeletonContainerDesktop>
-                          <Skeleton
-                            variant="rectangular"
-                            width={600}
-                            height={392}
-                          />
-                        </SkeletonContainerDesktop>
-                        <SkeletonContainerMobile>
-                          <Skeleton
-                            variant="rectangular"
-                            width={320}
-                            height={200}
-                          />
-                        </SkeletonContainerMobile>
-                      </>
+                      <Skeleton
+                        variant="rectangular"
+                        sx={{
+                          height: 392,
+                          width: 600,
+                          borderRadius: "6px",
+                          "@media (max-width: 600px)": {
+                            height: 200,
+                            width: 320,
+                          },
+                        }}
+                      />
                     ) : (
                       <MainImage
                         src={`${recentImages[0].url}?w=164&h=164&fit=crop&auto=format`}
@@ -228,8 +212,13 @@ export default function Home(props) {
                         {item.context.alt === "pending" ? (
                           <Skeleton
                             variant="rectangular"
-                            width={260}
-                            height={160}
+                            sx={{
+                              height: 160,
+                              borderRadius: "6px",
+                              "@media (max-width: 600px)": {
+                                height: 97,
+                              },
+                            }}
                           />
                         ) : (
                           <img
