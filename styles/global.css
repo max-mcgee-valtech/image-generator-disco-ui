@@ -57,11 +57,16 @@ body {
   font-family: "FuturaStdBook" !important;
 }
 
+.MuiFormControl-root span.Mui-checked {
+  color: #000;
+}
+
+.MuiFormLabel-root.Mui-focused {
+  color: black !important;
+}
+
 .Mui-focused fieldset {
   border-color: black !important;
-}
-.MuiFormLabel-root.Mui-focused {
-  color: black;
 }
 
 @media screen and (max-width: 600px) {

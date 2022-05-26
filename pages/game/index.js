@@ -36,7 +36,9 @@ const QuizFormWrapper = styled.form`
   display: flex;
   justify-content: center;
   padding-top: 9rem;
+  max-width: 650px;
   width: 650px;
+  justify-content: flex-start;
   @media screen and (max-width: 768px) {
     width: 100%;
     padding-top: 5rem;
@@ -104,7 +106,6 @@ const Greeting = styled.div`
 
 const ViewContainer = styled.div`
   position: relative;
-  height: 100%;
   width: 100%;
   margin: 0;
   display: -webkit-box;
@@ -117,10 +118,6 @@ const ViewContainer = styled.div`
   min-width: 20rem;
   overflow-anchor: none;
   -webkit-overflow-scrolling: touch;
-  background-size: 8px 8px;
-  background-image: linear-gradient(90deg, #f5f5f5 6px, transparent 1%),
-    linear-gradient(#f5f5f5 6px, transparent 1%);
-  background-color: #e0dad3;
 `;
 
 const GameOverWrapper = styled.div`
