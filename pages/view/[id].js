@@ -58,7 +58,6 @@ export default function Home(props) {
     <Layout>
       <div className="container">
         <Head>
-          <meta content="upgrade-insecure-requests" />
           <title>View Image</title>
           <link rel="icon" href="/favicon.ico" />
         </Head>

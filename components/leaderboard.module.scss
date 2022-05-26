@@ -32,10 +32,10 @@ $cubeDepthMobile: $cubeHeightMobile;
   position: absolute;
   border: 1px solid #888;
   background: #fff;
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.1), 0 0 50px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.1), 0 0 50px rgba(0, 0, 0, 0.2);
   color: #333;
   line-height: $cubeWidth;
-  opacity: 0.9;
+  // opacity: 0.9;
 }
 
 ._3dfacefront {
@@ -135,7 +135,7 @@ $cubeDepthMobile: $cubeHeightMobile;
   background-repeat: no-repeat !important;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1024px) {
   /* 3D Cube */
   .space3d {
     perspective: 1000px;
@@ -162,10 +162,10 @@ $cubeDepthMobile: $cubeHeightMobile;
     position: absolute;
     border: 1px solid #888;
     background: #fff;
-    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.1), 0 0 50px rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.1), 0 0 50px rgba(0, 0, 0, 0.2);
     color: #333;
     line-height: $cubeWidthMobile;
-    opacity: 0.9;
+    // opacity: 0.9;
   }
 
   ._3dfacefront {

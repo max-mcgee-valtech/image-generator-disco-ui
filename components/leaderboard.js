@@ -20,35 +20,36 @@ const Title = styled.h2`
   height: 13px;
   position: relative;
   top: -136px;
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 1024px) {
     font-size: 14px;
     height: 2px;
-    top: -64px;
+    top: -71px;
   }
 `;
 
 const ListItemWrapper = styled.div`
   display: flex;
   justify-content: space-between;
-  width: 8rem;
+  width: 10rem;
   position: relative;
-  left: 12px;
-  @media screen and (max-width: 768px) {
+  left: -6px;
+  @media screen and (max-width: 1024px) {
     width: 4.5rem;
     font-size: 14px;
+    left: 11px;
   }
 `;
 
 const ListItemContainer = styled(ListItem)`
   padding-left: 42px;
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 1024px) {
     min-width: 2px;
     padding: 0 16px;
   }
 `;
 
 const ListItemIconWrapper = styled(ListItemIcon)`
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 1024px) {
     min-width: 2px;
   }
 `;
@@ -77,7 +78,7 @@ const Container = styled.div`
   perspective: 1000px;
   flex-direction: column;
   align-items: center;
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 1024px) {
     width: 150px;
   }
 `;
@@ -120,10 +121,10 @@ export default function InsetList() {
           }}
         >
           <Title>All-Time Leaderboard</Title>
-          <List>
+          <List sx={{ paddingTop: 0 }}>
             {leaderboard.map((value, index) => {
               return (
-                <ListItemContainer>
+                <ListItemContainer key={index}>
                   {index === 0 && (
                     <ListItemIconWrapper>
                       <StarIcon />
@@ -139,7 +140,7 @@ export default function InsetList() {
                     inset
                     sx={{
                       paddingLeft: index === 0 ? 0 : "auto",
-                      "@media (max-width: 768px)": {
+                      "@media (max-width: 1024px)": {
                         fontSize: "14px",
                         paddingLeft: index === 0 ? 0 : "26px",
                       },

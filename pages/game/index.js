@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-// https://codepen.io/mxmcg/pen/MWQEzoV
+// https://codepen.io/chinchang/pen/nNgLgP
 
 import {
   getDatabase,
@@ -31,6 +31,11 @@ import styles from "./game.module.scss";
 import Layout from "../../components/layout";
 import Leaderboard from "../../components/leaderboard";
 import { ApiContext } from "../../utils/gameProvider";
+import Image from "next/image";
+import {
+  StyledButton,
+  ImageWrapper,
+} from "../../components/sharedStyledComponents";
 
 const QuizFormWrapper = styled.form`
   display: flex;
@@ -57,43 +62,18 @@ const GameContainer = styled.div`
   justify-content: center;
   flex-direction: column;
   align-items: center;
-  @media screen and (max-width: 768px) {
+  background-size: 8px 8px;
+  background-image: linear-gradient(90deg, #f5f5f5 6px, transparent 1%),
+    linear-gradient(#f5f5f5 6px, transparent 1%);
+  background-color: #e0dad3;
+
+  @media only screen and (min-width: 1024px) and (max-width: 1380px) {
+    margin-left: 20rem;
+  }
+
+  @media screen and (max-width: 1023px) {
     margin-top: 11rem;
     padding: 0 1.5rem;
-  }
-`;
-
-const CheckAnswerButton = styled(Button)`
-  padding: 0.6rem 3rem;
-  margin-bottom: 0.625rem;
-  font-weight: 500;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  border: 5px solid #06477b;
-  -webkit-box-shadow: 3px 4px #0f9;
-  box-shadow: 3px 4px #0f9;
-  color: #fff;
-  background-color: #000;
-  white-space: nowrap;
-  cursor: pointer;
-  overflow: hidden;
-  vertical-align: middle;
-  text-transform: uppercase;
-  position: relative;
-  outline: 0;
-  letter-spacing: 0.0625rem;
-  width: -webkit-fit-content;
-  width: -moz-fit-content;
-  width: fit-content;
-
-  &:hover {
-    border: 5px solid #000;
-    background-color: #0f9;
-    color: #000;
   }
 `;
 
@@ -153,6 +133,15 @@ export const GameScore = styled.div`
   justify-content: space-between;
   width: 600px;
 
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+const AboutSection = styled.div`
+  width: 500px;
+  line-height: 26px;
+  padding-top: 3rem;
   @media screen and (max-width: 768px) {
     width: 100%;
   }
@@ -341,6 +330,7 @@ export default function Game(props) {
 
   const multChoiceStyle = (index) => {
     return {
+      padding: "5px 0",
       color:
         message == "correct" &&
         state.game.steps[state.game.currentStep].options[index] === value
@@ -355,17 +345,17 @@ export default function Game(props) {
   return (
     <Layout>
       <Head>
-        <meta
-          http-equiv="Content-Security-Policy"
-          content="upgrade-insecure-requests"
-        />
-        <title>Image Alchemist</title>
+        <title>Pixel Machine</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <ViewContainer>
         <Leaderboard />
         <GameContainer>
+          <ImageWrapper>
+            <Image src="/FS_Logo_Black.png" layout="fill" objectFit="contain" />
+          </ImageWrapper>
+
           {state.game.steps[state.game.currentStep] &&
             state.game.currentStep < 8 && (
               <GameScore>
@@ -480,6 +470,20 @@ export default function Game(props) {
                   Play
                 </div>
               </InputWrapper>
+              <AboutSection>
+                The Pixel Machine game tests your ability to match AI generated
+                images with their caption. As you progress through the game,
+                beware - the time to guess the correct caption decreases. Fight
+                to reach the top of the leaderboard as you see the work of our
+                community of AI artists!
+                <br />
+                <br />
+                To create an image, check out the{" "}
+                <a href="/" style={{ color: "black" }}>
+                  image generation playground
+                </a>
+                .{" "}
+              </AboutSection>
             </div>
           )}
           {state.game.steps[state.game.currentStep] &&
@@ -548,13 +552,13 @@ export default function Game(props) {
                     />
                   </RadioGroup>
 
-                  <CheckAnswerButton
+                  <StyledButton
                     sx={{ mt: 1, mr: 1 }}
                     type="submit"
                     variant="outlined"
                   >
                     Check Answer
-                  </CheckAnswerButton>
+                  </StyledButton>
                 </FormControl>
               </QuizFormWrapper>
             )}
@@ -562,9 +566,7 @@ export default function Game(props) {
             <GameOverWrapper>
               <Title>{`Game Over, ${currentPlayer.username}`}</Title>
               <Title>{`Your All-Time Score: ${currentPlayer.points} `}</Title>
-              <CheckAnswerButton onClick={onPlayAgain}>
-                Play Again
-              </CheckAnswerButton>
+              <StyledButton onClick={onPlayAgain}>Play Again</StyledButton>
             </GameOverWrapper>
           )}
         </GameContainer>

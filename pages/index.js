@@ -9,14 +9,19 @@ import {
   ImageList,
   ImageListItemBar,
   Skeleton,
+  TextField,
 } from "@mui/material";
 import styled from "styled-components";
 
 import Head from "next/head";
 import Link from "next/link";
+import Image from "next/image";
 
 import Layout from "../components/layout";
-import TextField from "@mui/material/TextField";
+import {
+  StyledButton,
+  ImageWrapper,
+} from "../components/sharedStyledComponents";
 
 const MainImageContainer = styled.div`
   display: flex;
@@ -38,6 +43,15 @@ const MainImage = styled.img`
   max-height: 392px;
   height: auto;
   border-radius: 6px;
+`;
+
+const AboutSection = styled.div`
+  width: 800px;
+  padding-top: 4rem;
+  line-height: 26px;
+  @media screen and (max-width: 600px) {
+    width: 100%;
+  }
 `;
 
 export const Caption = styled.div`
@@ -99,28 +113,28 @@ export default function Home(props) {
         method: "GET",
       });
       const finalUpdatedImages = await updateImages.json();
-      console.log("final ", finalUpdatedImages);
       setRecentImages(finalUpdatedImages.images.slice(0, 10));
     }, 2000);
   };
-
-  console.log(recentImages[0]);
 
   return (
     <Layout>
       <div className="container">
         <Head>
-          <meta
-            http-equiv="Content-Security-Policy"
-            content="upgrade-insecure-requests"
-          />
-          <title>Image Alchemist</title>
+          <title>Pixel Machine</title>
           <link rel="icon" href="/favicon.ico" />
         </Head>
 
         <main>
           <div>
             <Box sx={{ width: "100%" }}>
+              <ImageWrapper>
+                <Image
+                  src="/FS_Logo_Black.png"
+                  layout="fill"
+                  objectFit="contain"
+                />
+              </ImageWrapper>
               {recentImages[0] && (
                 <Link href={`/view/${recentImages[0].filename}`}>
                   <MainImageContainer>
@@ -133,7 +147,7 @@ export default function Home(props) {
                           borderRadius: "6px",
                           "@media (max-width: 600px)": {
                             height: 200,
-                            width: 320,
+                            width: 345,
                           },
                         }}
                       />
@@ -161,7 +175,7 @@ export default function Home(props) {
                     width: "300px",
                     display: "flex",
                     "@media (max-width: 768px)": {
-                      width: "80%",
+                      width: "90%",
                       display: "flex",
                       justifyContent: "center",
                     },
@@ -177,18 +191,19 @@ export default function Home(props) {
                     sx={{
                       color: "black",
                       borderColor: "black",
+                      backgroundColor: "white",
                       width: "300px",
                       ":hover": {
                         color: "black",
                       },
-                      "@media (max-width: 768px)": {
-                        width: "80%",
+                      "@media (max-width: 600px)": {
+                        width: "100%",
                       },
                     }}
                   />
                 </Grid>
                 <Grid item>
-                  <Button
+                  <StyledButton
                     type={"submit"}
                     variant={"contained"}
                     color={"primary"}
@@ -201,9 +216,42 @@ export default function Home(props) {
                     }}
                   >
                     Submit
-                  </Button>
+                  </StyledButton>
                 </Grid>
               </Grid>
+              <AboutSection>
+                Pixel Machine is a tool empowering users to create AI-generated
+                Art. Recent improvements in diffusion models allow users to
+                created high-quality synthetic images matching text prompts.
+                Using the{" "}
+                <a
+                  href="https://github.com/alembics/disco-diffusion"
+                  target="_blank"
+                  style={{ color: "black" }}
+                >
+                  Disco Diffusion
+                </a>{" "}
+                model, text prompts are converted into images through 250 steps
+                of diffusion iterations.
+                <br />
+                <br />
+                To create an image, enter a creative text prompt. Try to be as
+                descriptive as possible.{" "}
+                <a
+                  href="https://weirdwonderfulai.art/resources/disco-diffusion-modifiers/"
+                  target="_blank"
+                  style={{ color: "black" }}
+                >
+                  Check out these modifier examples
+                </a>{" "}
+                for inspiration as you create your prompt. It currently takes
+                about 10 minutes to generate a new image. While you are waiting,
+                play the{" "}
+                <a href="/game" style={{ color: "black" }}>
+                  Pixel Machine game
+                </a>{" "}
+                to test your AI guessing abilities.
+              </AboutSection>
               <ImageList cols={3} gap={8}>
                 {recentImages.slice(1, 10).map((item) => {
                   return (
@@ -251,11 +299,14 @@ export default function Home(props) {
             flex-direction: column;
             justify-content: center;
             align-items: center;
-          }
-
-          a {
-            color: inherit;
-            text-decoration: none;
+            background-size: 8px 8px;
+            background-image: linear-gradient(
+                90deg,
+                #f5f5f5 6px,
+                transparent 1%
+              ),
+              linear-gradient(#f5f5f5 6px, transparent 1%);
+            background-color: #e0dad3;
           }
         `}</style>
       </div>
