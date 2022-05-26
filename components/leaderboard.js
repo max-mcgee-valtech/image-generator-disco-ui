@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import StarIcon from "@mui/icons-material/Star";
@@ -21,6 +20,11 @@ const Title = styled.h2`
   height: 13px;
   position: relative;
   top: -136px;
+  @media screen and (max-width: 768px) {
+    font-size: 14px;
+    height: 2px;
+    top: -64px;
+  }
 `;
 
 const ListItemWrapper = styled.div`
@@ -29,6 +33,30 @@ const ListItemWrapper = styled.div`
   width: 8rem;
   position: relative;
   left: 12px;
+  @media screen and (max-width: 768px) {
+    width: 4.5rem;
+    font-size: 14px;
+  }
+`;
+
+const ListItemContainer = styled(ListItem)`
+  padding-left: 42px;
+  @media screen and (max-width: 768px) {
+    min-width: 2px;
+    padding: 0 16px;
+  }
+`;
+
+const ListItemIconWrapper = styled(ListItemIcon)`
+  @media screen and (max-width: 768px) {
+    min-width: 2px;
+  }
+`;
+
+const UserName = styled.div`
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 `;
 
 const Shape = styled.div`
@@ -95,23 +123,29 @@ export default function InsetList() {
           <List>
             {leaderboard.map((value, index) => {
               return (
-                <ListItem style={{ paddingLeft: "42px" }}>
+                <ListItemContainer>
                   {index === 0 && (
-                    <ListItemIcon>
+                    <ListItemIconWrapper>
                       <StarIcon />
-                    </ListItemIcon>
+                    </ListItemIconWrapper>
                   )}
                   <ListItemText
                     primary={
                       <ListItemWrapper>
-                        <div>{value.username}</div>
+                        <UserName>{value.username}</UserName>
                         <div>{value.points}</div>
                       </ListItemWrapper>
                     }
                     inset
-                    sx={{ paddingLeft: index === 0 ? 0 : "auto" }}
+                    sx={{
+                      paddingLeft: index === 0 ? 0 : "auto",
+                      "@media (max-width: 768px)": {
+                        fontSize: "14px",
+                        paddingLeft: index === 0 ? 0 : "26px",
+                      },
+                    }}
                   />
-                </ListItem>
+                </ListItemContainer>
               );
             })}
           </List>

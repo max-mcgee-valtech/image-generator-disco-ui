@@ -20,11 +20,16 @@ html,
 body {
   padding: 0;
   margin: 0;
+  height: 100%;
   font-family: "FuturaStdBook";
 }
 
 * {
   box-sizing: border-box;
+}
+
+#__next {
+  height: 100%;
 }
 
 .MuiImageListItemBar-title {

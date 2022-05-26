@@ -13,7 +13,6 @@ import {
 
 import cloudinary from "cloudinary";
 import {
-  Grid,
   FormHelperText,
   Button,
   FormControl,
@@ -105,7 +104,7 @@ const Greeting = styled.div`
 
 const ViewContainer = styled.div`
   position: relative;
-  height: 100vh;
+  height: 100%;
   width: 100%;
   margin: 0;
   display: -webkit-box;

@@ -1,8 +1,13 @@
 import Head from "next/head";
+import styled from "styled-components";
+
+const Container = styled.div`
+  height: 100%;
+`;
 
 export default function Layout({ children }) {
   return (
-    <div>
+    <Container>
       {" "}
       <Head>
         <link
@@ -25,6 +30,6 @@ export default function Layout({ children }) {
         />
       </Head>
       {children}{" "}
-    </div>
+    </Container>
   );
 }
