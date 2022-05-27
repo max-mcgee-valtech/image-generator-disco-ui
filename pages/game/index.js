@@ -136,6 +136,9 @@ export const CountdownContainer = styled.div`
   display: flex;
   justify-content: flex-start;
   padding-top: 1rem;
+  ${(props) => {
+    props.showWarningColor ? "red" : "black";
+  }}
 `;
 
 export const GameScore = styled.div`
@@ -211,13 +214,18 @@ export default function Game(props) {
   const [textInput, setTextInput] = useState("");
   const [textFieldError, setTextFieldError] = useState("");
   const [currentPlayer, setCurrentPlayer] = useState(null);
-  const [value, setValue] = React.useState("");
-  const [message, setMessage] = React.useState("default");
-  const [helperText, setHelperText] = React.useState("Choose wisely");
+  const [captionValue, setCaptionValue] = useState("");
+  const [message, setMessage] = useState("default");
+  const [helperText, setHelperText] = useState("Choose wisely");
   const [timer, setTimer] = useState("00:20");
   const [startTime, setStartTime] = useState(20);
 
   const database = getDatabase();
+
+  // useEffect(() => {
+  //   console.log(state);
+  //   console.log(captionValue);
+  // }, [state]);
 
   // BEGIN TIMER https://www.geeksforgeeks.org/how-to-create-a-countdown-timer-using-reactjs/
   const Ref = useRef(null);
@@ -237,7 +245,8 @@ export default function Game(props) {
   const startTimer = (e) => {
     let { total, minutes, seconds } = getTimeRemaining(e);
     if (total === 0) {
-      handleSubmitQuestion();
+      triggerWrongAnswer();
+      triggerNextStep(startTime);
     }
     if (total >= 0) {
       setTimer(
@@ -248,7 +257,7 @@ export default function Game(props) {
     }
   };
 
-  const clearTimer = (e, time) => {
+  const clearTimer = (e, time, endTimer = false) => {
     let formatTime;
     if (time < 10) {
       formatTime = `0${time}`;
@@ -256,7 +265,10 @@ export default function Game(props) {
       formatTime = time;
     }
     setTimer(`00:${formatTime}`);
-    if (Ref.current) clearInterval(Ref.current);
+    if (Ref.current || endTimer) {
+      console.log("CLEAR IT");
+      clearInterval(Ref.current);
+    }
     const id = setInterval(() => {
       startTimer(e);
     }, 1000);
@@ -283,7 +295,7 @@ export default function Game(props) {
   };
 
   const handleRadioChange = (event) => {
-    setValue(event.target.value);
+    setCaptionValue(event.target.value);
     setHelperText("");
   };
 
@@ -305,11 +317,24 @@ export default function Game(props) {
     return update(ref(db), updates);
   };
 
-  const handleSubmitQuestion = (event) => {
-    event && event.preventDefault();
+  const triggerWrongAnswer = () => {
+    if (state.game.currentStep >= 7) {
+      console.log("state.game.currentStep", state.game.currentStep);
+      clearTimer(0, 0, true);
+    }
+    setMessage("incorrect");
+    setHelperText("Sorry, wrong answer!");
+    // When Answer is wrong, leave at current countdown
+    setStartTime(startTime);
+  };
 
+  const handleSubmitQuestion = (event) => {
+    event.preventDefault();
     let newStart = startTime;
-    if (value == state.game.steps[state.game.currentStep]?.correctTextPrompt) {
+    if (
+      captionValue ==
+      state.game.steps[state.game.currentStep]?.correctTextPrompt
+    ) {
       setHelperText("You got it!");
       setMessage("correct");
       incrementPoint();
@@ -317,15 +342,14 @@ export default function Game(props) {
       newStart = startTime - 2;
       setStartTime(newStart);
     } else {
-      setMessage("incorrect");
-      setHelperText("Sorry, wrong answer!");
-      // When Answer is wrong, leave at current countdown
-      newStart = startTime - 0;
-      setStartTime(newStart);
+      triggerWrongAnswer();
     }
+    triggerNextStep(startTime);
+  };
 
+  const triggerNextStep = (newStart) => {
     setTimeout(() => {
-      setValue("");
+      setCaptionValue("");
       setHelperText("Choose wisely");
       dispatch({
         type: "INCREMENT_CURRENT_STEP",
@@ -341,7 +365,7 @@ export default function Game(props) {
 
   const setupGame = async () => {
     if (textInput === "") {
-      return setTextFieldError("You must enter a name.");
+      return setTextFieldError("You must enter a name");
     }
     const topUserScoresRef = query(ref(database, "scores"));
     let playerMatched = false;
@@ -411,14 +435,17 @@ export default function Game(props) {
       padding: "5px 0",
       color:
         message == "correct" &&
-        state.game.steps[state.game.currentStep].options[index] === value
+        state.game.steps[state.game.currentStep].options[index] === captionValue
           ? "#3B9C75"
           : message == "incorrect" &&
-            state.game.steps[state.game.currentStep].options[index] === value
+            state.game.steps[state.game.currentStep].options[index] ===
+              captionValue
           ? "red"
           : "#000",
     };
   };
+
+  console.log(timer);
 
   return (
     <Layout>
@@ -609,7 +636,7 @@ export default function Game(props) {
                   <RadioGroup
                     aria-labelledby="demo-error-radios"
                     name="quiz"
-                    value={value}
+                    value={captionValue}
                     onChange={handleRadioChange}
                     sx={{
                       paddingBottom: "1rem",

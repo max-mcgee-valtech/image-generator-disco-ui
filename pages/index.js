@@ -86,16 +86,20 @@ export async function getServerSideProps(context) {
 export default function Home(props) {
   const [recentImages, setRecentImages] = useState([]);
   const [textInput, setTextInput] = useState("");
-
-  const handleTextInputChange = (event) => {
-    setTextInput(event.target.value);
-  };
+  const [textFieldError, setTextFieldError] = useState("");
 
   useEffect(() => {
     setRecentImages(props.images.images.slice(0, 10));
   }, props.images);
 
+  const handleTextInputChange = (event) => {
+    setTextInput(event.target.value);
+  };
+
   const handleSubmit = async () => {
+    if (textInput === "") {
+      return setTextFieldError("Please enter a text prompt");
+    }
     setTextInput("");
     await fetch("/api/generate-image-disco", {
       method: "POST",
@@ -183,10 +187,12 @@ export default function Home(props) {
                   }}
                 >
                   <TextField
+                    className="textPromptInputWrapper"
                     id={"outlined-textarea"}
                     label={"Enter a Sentence"}
                     placeholder={"Placeholder"}
                     value={textInput}
+                    helperText={textFieldError}
                     multiline
                     onChange={handleTextInputChange}
                     sx={{
