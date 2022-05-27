@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB_IiAUg8FUqCIWfpnZGL6F3QCJCc4yWz8",
+  apiKey: process.env.FIREBASE_API_KEY,
   authDomain: "image-generator-disco.firebaseapp.com",
   projectId: "image-generator-disco",
   storageBucket: "image-generator-disco.appspot.com",
