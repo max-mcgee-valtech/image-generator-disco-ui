@@ -122,6 +122,10 @@ export default function Home(props) {
       <div className="container">
         <Head>
           <title>Pixel Machine</title>
+          <meta
+            http-equiv="Content-Security-Policy"
+            content="upgrade-insecure-requests"
+          />
           <link rel="icon" href="/favicon.ico" />
         </Head>
 

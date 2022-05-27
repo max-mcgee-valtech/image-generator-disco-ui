@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 // https://codepen.io/chinchang/pen/nNgLgP
 
 import {
@@ -39,6 +39,7 @@ import {
 
 const QuizFormWrapper = styled.form`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   padding-top: 9rem;
   max-width: 650px;
@@ -68,12 +69,13 @@ const GameContainer = styled.div`
   background-color: #e0dad3;
 
   @media only screen and (min-width: 1024px) and (max-width: 1380px) {
-    margin-left: 20rem;
+    padding-left: 20rem;
   }
 
   @media screen and (max-width: 1023px) {
-    margin-top: 11rem;
-    padding: 0 1.5rem;
+    padding-top: 11rem;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
   }
 `;
 
@@ -126,6 +128,12 @@ export const ScoreContainer = styled.div`
   display: flex;
   justify-content: center;
   padding: 2rem 0;
+`;
+
+export const CountdownContainer = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 1rem;
 `;
 
 export const GameScore = styled.div`
@@ -199,12 +207,109 @@ export async function getServerSideProps(context) {
 export default function Game(props) {
   const { state, dispatch } = useContext(ApiContext);
   const [textInput, setTextInput] = useState("");
+  // const [timer, setTimer] = useState(10);
+  // const [resetTimer, setResetTimer] = useState(false);
   const [currentPlayer, setCurrentPlayer] = useState(null);
+  const [value, setValue] = React.useState("");
+  const [message, setMessage] = React.useState("default");
+  const [helperText, setHelperText] = React.useState("Choose wisely");
+  const [timer, setTimer] = useState("00:00:20");
+  const [startTime, setStartTime] = useState(20);
+
   const database = getDatabase();
 
+  useEffect(() => {
+    console.log(timer);
+  }, [timer]);
+
+  // We need ref in this, because we are dealing
+  // with JS setInterval to keep track of it and
+  // stop it when needed
+  const Ref = useRef(null);
+
+  // The state for our timer
+
+  const getTimeRemaining = (e) => {
+    const total = Date.parse(e) - Date.parse(new Date());
+    const seconds = Math.floor((total / 1000) % 60);
+    const minutes = Math.floor((total / 1000 / 60) % 60);
+    const hours = Math.floor((total / 1000 / 60 / 60) % 24);
+    return {
+      total,
+      hours,
+      minutes,
+      seconds,
+    };
+  };
+
+  const startTimer = (e) => {
+    let { total, hours, minutes, seconds } = getTimeRemaining(e);
+    if (total >= 0) {
+      // update the timer
+      // check if less than 10 then we need to
+      // add '0' at the begining of the variable
+      setTimer(
+        (hours > 9 ? hours : "0" + hours) +
+          ":" +
+          (minutes > 9 ? minutes : "0" + minutes) +
+          ":" +
+          (seconds > 9 ? seconds : "0" + seconds)
+      );
+    }
+  };
+
+  const clearTimer = (e, time = 0, incDec) => {
+    // If you adjust it you should also need to
+    // adjust the Endtime formula we are about
+    // to code next
+
+    console.log("CLEAR TIEMR", time);
+    let formatTime;
+    if (time < 10) {
+      formatTime = `0${time}`;
+    } else {
+      formatTime = time;
+    }
+    setTimer(`00:00:${formatTime}`);
+
+    // If you try to remove this line the
+    // updating of timer Variable will be
+    // after 1000ms or 1sec
+    if (Ref.current) clearInterval(Ref.current);
+    const id = setInterval(() => {
+      startTimer(e);
+    }, 1000);
+    Ref.current = id;
+  };
+
+  const getDeadTime = (time = 0, incDec) => {
+    let deadline = new Date();
+    console.log("GET DEAD", time);
+    // This is where you need to adjust if
+    // you intend to add more time
+
+    deadline.setSeconds(deadline.getSeconds() + time);
+
+    return deadline;
+  };
+
+  // We can use useEffect so that when the component
+  // mount the timer will start as soon as possible
+
+  // We put empty array to act as componentDid
+  // mount only
   // useEffect(() => {
-  //   console.log(state);
-  // }, [state]);
+  //   clearTimer(getDeadTime());
+  // }, []);
+
+  // Another way to call the clearTimer() to start
+  // the countdown is via action event from the
+  // button first we create function to be called
+  // by the button
+  const onClickReset = (time, incDec) => {
+    console.log("statme up", time);
+    clearTimer(getDeadTime(time, incDec), time, incDec);
+  };
 
   const onPlayAgain = () => {
     dispatch({
@@ -213,16 +318,12 @@ export default function Game(props) {
     setupGame();
   };
 
-  const [value, setValue] = React.useState("");
-  const [message, setMessage] = React.useState("default");
-  const [helperText, setHelperText] = React.useState("Choose wisely");
-
   const handleRadioChange = (event) => {
     setValue(event.target.value);
-    setHelperText(" ");
+    setHelperText("");
   };
 
-  function incrementPoint() {
+  const incrementPoint = () => {
     const db = getDatabase();
     const newPostKey = currentPlayer?.key ?? push(child(ref(db), "scores")).key;
 
@@ -238,27 +339,34 @@ export default function Game(props) {
       type: "INCREMENT_CURRENT_GAME_POINTS",
     });
     return update(ref(db), updates);
-  }
+  };
 
   const handleSubmitQuestion = (event) => {
     event.preventDefault();
 
+    let newStart = startTime;
     if (value == state.game.steps[state.game.currentStep].correctTextPrompt) {
       setHelperText("You got it!");
       setMessage("correct");
       incrementPoint();
+      newStart = startTime - 2;
+      console.log("new start", newStart);
+      setStartTime(newStart);
     } else {
       setMessage("incorrect");
       setHelperText("Sorry, wrong answer!");
+      setStartTime(startTime);
     }
 
     setTimeout(() => {
+      console.log("message", message);
       setValue("");
       setHelperText("Choose wisely");
-      setMessage("default");
       dispatch({
         type: "INCREMENT_CURRENT_STEP",
       });
+      onClickReset(newStart);
+      setMessage("default");
     }, 1500);
   };
 
@@ -323,6 +431,8 @@ export default function Game(props) {
       type: "SET_GAME_STEPS",
       payload: cleanedImages,
     });
+
+    clearTimer(getDeadTime());
   };
 
   const multipleChoiceOptions =
@@ -346,6 +456,10 @@ export default function Game(props) {
     <Layout>
       <Head>
         <title>Pixel Machine</title>
+        <meta
+          http-equiv="Content-Security-Policy"
+          content="upgrade-insecure-requests"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -489,6 +603,7 @@ export default function Game(props) {
           {state.game.steps[state.game.currentStep] &&
             state.game.currentStep < 8 && (
               <QuizFormWrapper onSubmit={handleSubmitQuestion}>
+                <CountdownContainer>Time Remaining {timer}</CountdownContainer>
                 <FormControl sx={{ m: 3, margin: "2rem 0" }} variant="standard">
                   <FormLabel
                     id="demo-error-radios"
