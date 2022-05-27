@@ -222,11 +222,6 @@ export default function Game(props) {
 
   const database = getDatabase();
 
-  // useEffect(() => {
-  //   console.log(state);
-  //   console.log(captionValue);
-  // }, [state]);
-
   // BEGIN TIMER https://www.geeksforgeeks.org/how-to-create-a-countdown-timer-using-reactjs/
   const Ref = useRef(null);
   const getTimeRemaining = (e) => {
@@ -257,7 +252,7 @@ export default function Game(props) {
     }
   };
 
-  const clearTimer = (e, time, endTimer = false) => {
+  const clearTimer = (e, time, stopQuiz = false) => {
     let formatTime;
     if (time < 10) {
       formatTime = `0${time}`;
@@ -265,9 +260,9 @@ export default function Game(props) {
       formatTime = time;
     }
     setTimer(`00:${formatTime}`);
-    if (Ref.current || endTimer) {
-      console.log("CLEAR IT");
-      clearInterval(Ref.current);
+    if (Ref.current) clearInterval(Ref.current);
+    if (stopQuiz) {
+      return;
     }
     const id = setInterval(() => {
       startTimer(e);
@@ -283,7 +278,8 @@ export default function Game(props) {
   };
 
   const onClickReset = (time) => {
-    clearTimer(getDeadTime(time), time);
+    const isFinalStep = state.game.currentStep > 6;
+    clearTimer(getDeadTime(time), time, isFinalStep ?? false);
   };
   // END TIMER https://www.geeksforgeeks.org/how-to-create-a-countdown-timer-using-reactjs/
 
@@ -291,6 +287,7 @@ export default function Game(props) {
     dispatch({
       type: "RESET_GAME",
     });
+    setStartTime(20);
     setupGame();
   };
 
@@ -318,10 +315,6 @@ export default function Game(props) {
   };
 
   const triggerWrongAnswer = () => {
-    if (state.game.currentStep >= 7) {
-      console.log("state.game.currentStep", state.game.currentStep);
-      clearTimer(0, 0, true);
-    }
     setMessage("incorrect");
     setHelperText("Sorry, wrong answer!");
     // When Answer is wrong, leave at current countdown
@@ -344,7 +337,7 @@ export default function Game(props) {
     } else {
       triggerWrongAnswer();
     }
-    triggerNextStep(startTime);
+    triggerNextStep(newStart);
   };
 
   const triggerNextStep = (newStart) => {
@@ -444,8 +437,6 @@ export default function Game(props) {
           : "#000",
     };
   };
-
-  console.log(timer);
 
   return (
     <Layout>
