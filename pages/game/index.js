@@ -1,6 +1,5 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
 // https://codepen.io/chinchang/pen/nNgLgP
-
+import React, { useState, useContext, useEffect, useRef } from "react";
 import {
   getDatabase,
   ref,
@@ -10,11 +9,9 @@ import {
   push,
   child,
 } from "firebase/database";
-
 import cloudinary from "cloudinary";
 import {
   FormHelperText,
-  Button,
   FormControl,
   FormLabel,
   RadioGroup,
@@ -23,15 +20,13 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import styled from "styled-components";
-
 import Head from "next/head";
-import Link from "next/link";
+import Image from "next/image";
 
 import styles from "./game.module.scss";
 import Layout from "../../components/layout";
 import Leaderboard from "../../components/leaderboard";
 import { ApiContext } from "../../utils/gameProvider";
-import Image from "next/image";
 import {
   StyledButton,
   ImageWrapper,
@@ -43,6 +38,7 @@ const QuizFormWrapper = styled.form`
   justify-content: center;
   padding-top: 9rem;
   max-width: 650px;
+  min-height: 400px;
   width: 650px;
   justify-content: flex-start;
   @media screen and (max-width: 768px) {
@@ -104,6 +100,9 @@ const ViewContainer = styled.div`
 
 const GameOverWrapper = styled.div`
   padding: 4rem;
+  @media screen and (max-width: 768px) {
+    padding: 4rem 0;
+  }
 `;
 
 export const Title = styled.div`
@@ -128,6 +127,9 @@ export const ScoreContainer = styled.div`
   display: flex;
   justify-content: center;
   padding: 2rem 0;
+  @media screen and (max-width: 768px) {
+    padding: 0.5rem 0 2rem;
+  }
 `;
 
 export const CountdownContainer = styled.div`
@@ -207,28 +209,18 @@ export async function getServerSideProps(context) {
 export default function Game(props) {
   const { state, dispatch } = useContext(ApiContext);
   const [textInput, setTextInput] = useState("");
-  // const [timer, setTimer] = useState(10);
-  // const [resetTimer, setResetTimer] = useState(false);
+  const [textFieldError, setTextFieldError] = useState("");
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [value, setValue] = React.useState("");
   const [message, setMessage] = React.useState("default");
   const [helperText, setHelperText] = React.useState("Choose wisely");
-  const [timer, setTimer] = useState("00:00:20");
+  const [timer, setTimer] = useState("00:20");
   const [startTime, setStartTime] = useState(20);
 
   const database = getDatabase();
 
-  useEffect(() => {
-    console.log(timer);
-  }, [timer]);
-
-  // We need ref in this, because we are dealing
-  // with JS setInterval to keep track of it and
-  // stop it when needed
+  // BEGIN TIMER https://www.geeksforgeeks.org/how-to-create-a-countdown-timer-using-reactjs/
   const Ref = useRef(null);
-
-  // The state for our timer
-
   const getTimeRemaining = (e) => {
     const total = Date.parse(e) - Date.parse(new Date());
     const seconds = Math.floor((total / 1000) % 60);
@@ -243,38 +235,27 @@ export default function Game(props) {
   };
 
   const startTimer = (e) => {
-    let { total, hours, minutes, seconds } = getTimeRemaining(e);
+    let { total, minutes, seconds } = getTimeRemaining(e);
+    if (total === 0) {
+      handleSubmitQuestion();
+    }
     if (total >= 0) {
-      // update the timer
-      // check if less than 10 then we need to
-      // add '0' at the begining of the variable
       setTimer(
-        (hours > 9 ? hours : "0" + hours) +
-          ":" +
-          (minutes > 9 ? minutes : "0" + minutes) +
+        (minutes > 9 ? minutes : "0" + minutes) +
           ":" +
           (seconds > 9 ? seconds : "0" + seconds)
       );
     }
   };
 
-  const clearTimer = (e, time = 0, incDec) => {
-    // If you adjust it you should also need to
-    // adjust the Endtime formula we are about
-    // to code next
-
-    console.log("CLEAR TIEMR", time);
+  const clearTimer = (e, time) => {
     let formatTime;
     if (time < 10) {
       formatTime = `0${time}`;
     } else {
       formatTime = time;
     }
-    setTimer(`00:00:${formatTime}`);
-
-    // If you try to remove this line the
-    // updating of timer Variable will be
-    // after 1000ms or 1sec
+    setTimer(`00:${formatTime}`);
     if (Ref.current) clearInterval(Ref.current);
     const id = setInterval(() => {
       startTimer(e);
@@ -282,34 +263,17 @@ export default function Game(props) {
     Ref.current = id;
   };
 
-  const getDeadTime = (time = 0, incDec) => {
+  const getDeadTime = (time = 0) => {
     let deadline = new Date();
-    console.log("GET DEAD", time);
-    // This is where you need to adjust if
-    // you intend to add more time
-
     deadline.setSeconds(deadline.getSeconds() + time);
 
     return deadline;
   };
 
-  // We can use useEffect so that when the component
-  // mount the timer will start as soon as possible
-
-  // We put empty array to act as componentDid
-  // mount only
-  // useEffect(() => {
-  //   clearTimer(getDeadTime());
-  // }, []);
-
-  // Another way to call the clearTimer() to start
-  // the countdown is via action event from the
-  // button first we create function to be called
-  // by the button
-  const onClickReset = (time, incDec) => {
-    console.log("statme up", time);
-    clearTimer(getDeadTime(time, incDec), time, incDec);
+  const onClickReset = (time) => {
+    clearTimer(getDeadTime(time), time);
   };
+  // END TIMER https://www.geeksforgeeks.org/how-to-create-a-countdown-timer-using-reactjs/
 
   const onPlayAgain = () => {
     dispatch({
@@ -342,24 +306,25 @@ export default function Game(props) {
   };
 
   const handleSubmitQuestion = (event) => {
-    event.preventDefault();
+    event && event.preventDefault();
 
     let newStart = startTime;
-    if (value == state.game.steps[state.game.currentStep].correctTextPrompt) {
+    if (value == state.game.steps[state.game.currentStep]?.correctTextPrompt) {
       setHelperText("You got it!");
       setMessage("correct");
       incrementPoint();
+      // When Answer is right, subtract 2 from countdown
       newStart = startTime - 2;
-      console.log("new start", newStart);
       setStartTime(newStart);
     } else {
       setMessage("incorrect");
       setHelperText("Sorry, wrong answer!");
-      setStartTime(startTime);
+      // When Answer is wrong, leave at current countdown
+      newStart = startTime - 0;
+      setStartTime(newStart);
     }
 
     setTimeout(() => {
-      console.log("message", message);
       setValue("");
       setHelperText("Choose wisely");
       dispatch({
@@ -375,6 +340,9 @@ export default function Game(props) {
   };
 
   const setupGame = async () => {
+    if (textInput === "") {
+      return setTextFieldError("You must enter a name.");
+    }
     const topUserScoresRef = query(ref(database, "scores"));
     let playerMatched = false;
     onValue(query(topUserScoresRef), (snapshot) => {
@@ -432,7 +400,7 @@ export default function Game(props) {
       payload: cleanedImages,
     });
 
-    clearTimer(getDeadTime());
+    clearTimer(getDeadTime(20), 20);
   };
 
   const multipleChoiceOptions =
@@ -549,16 +517,18 @@ export default function Game(props) {
               <InputWrapper>
                 <TextField
                   id={"outlined-textarea"}
+                  className="playerNameInput"
                   label={"Full Name"}
                   placeholder={"Full Name"}
                   value={textInput}
                   multiline
+                  helperText={textFieldError}
                   onChange={handleTextInputChange}
                   sx={{
                     color: "black",
-                    backgroundColor: "white",
                     borderColor: "black",
                     width: "300px",
+                    height: "82px",
                     ":hover": {
                       color: "black",
                     },
@@ -604,7 +574,11 @@ export default function Game(props) {
             state.game.currentStep < 8 && (
               <QuizFormWrapper onSubmit={handleSubmitQuestion}>
                 <CountdownContainer>Time Remaining {timer}</CountdownContainer>
-                <FormControl sx={{ m: 3, margin: "2rem 0" }} variant="standard">
+                <FormControl
+                  sx={{ m: 3, margin: "2rem 0" }}
+                  variant="standard"
+                  className="multipleChoiceContainer"
+                >
                   <FormLabel
                     id="demo-error-radios"
                     sx={{

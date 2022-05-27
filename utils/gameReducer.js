@@ -1,7 +1,6 @@
 const apiReducer = (state = {}, action) => {
   switch (action.type) {
     case "UPDATE_NUM_QUESTIONS":
-      console.log("...state", state);
       return {
         ...state,
         game: { ...state.game, numQuestions: action.payload },

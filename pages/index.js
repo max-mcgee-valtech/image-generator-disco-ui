@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import cloudinary from "cloudinary";
 import {
-  Button,
-  Stack,
   Grid,
   Box,
   ImageListItem,
@@ -12,7 +10,6 @@ import {
   TextField,
 } from "@mui/material";
 import styled from "styled-components";
-
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
