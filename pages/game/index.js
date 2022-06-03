@@ -219,8 +219,13 @@ export default function Game(props) {
   const [helperText, setHelperText] = useState("Choose wisely");
   const [timer, setTimer] = useState("00:20");
   const [startTime, setStartTime] = useState(20);
+  const counterRef = useRef(0);
 
   const database = getDatabase();
+
+  useEffect(() => {
+    counterRef.current = state.game.currentStep;
+  });
 
   // BEGIN TIMER https://www.geeksforgeeks.org/how-to-create-a-countdown-timer-using-reactjs/
   const Ref = useRef(null);
@@ -241,7 +246,6 @@ export default function Game(props) {
     let { total, minutes, seconds } = getTimeRemaining(e);
     if (total === 0) {
       triggerWrongAnswer();
-      triggerNextStep(startTime);
     }
     if (total >= 0) {
       setTimer(
@@ -278,7 +282,8 @@ export default function Game(props) {
   };
 
   const onClickReset = (time) => {
-    const isFinalStep = state.game.currentStep > 6;
+    const isFinalStep = counterRef.current > 6;
+    console.log("counterRef", counterRef.current);
     clearTimer(getDeadTime(time), time, isFinalStep ?? false);
   };
   // END TIMER https://www.geeksforgeeks.org/how-to-create-a-countdown-timer-using-reactjs/
@@ -319,6 +324,7 @@ export default function Game(props) {
     setHelperText("Sorry, wrong answer!");
     // When Answer is wrong, leave at current countdown
     setStartTime(startTime);
+    triggerNextStep(startTime);
   };
 
   const handleSubmitQuestion = (event) => {
@@ -334,16 +340,17 @@ export default function Game(props) {
       // When Answer is right, subtract 2 from countdown
       newStart = startTime - 2;
       setStartTime(newStart);
+      triggerNextStep(newStart);
     } else {
       triggerWrongAnswer();
     }
-    triggerNextStep(newStart);
   };
 
   const triggerNextStep = (newStart) => {
     setTimeout(() => {
       setCaptionValue("");
       setHelperText("Choose wisely");
+      console.log("sett current step");
       dispatch({
         type: "INCREMENT_CURRENT_STEP",
       });

@@ -8,7 +8,10 @@ import {
   ImageListItemBar,
   Skeleton,
   TextField,
+  Button,
 } from "@mui/material";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+
 import styled from "styled-components";
 import Head from "next/head";
 import Link from "next/link";
@@ -39,6 +42,14 @@ const MainImage = styled.img`
   max-width: 600px;
   max-height: 392px;
   height: auto;
+  border-radius: 6px;
+`;
+
+const PreviewUploadImage = styled.img`
+  cursor: pointer;
+  width: 100%;
+  height: auto;
+  max-width: 300px;
   border-radius: 6px;
 `;
 
@@ -86,6 +97,8 @@ export async function getServerSideProps(context) {
 export default function Home(props) {
   const [recentImages, setRecentImages] = useState([]);
   const [textInput, setTextInput] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [previewImage, setPreviewImage] = useState("");
   const [textFieldError, setTextFieldError] = useState("");
 
   useEffect(() => {
@@ -96,19 +109,36 @@ export default function Home(props) {
     setTextInput(event.target.value);
   };
 
+  const handleFileUpload = (e) => {
+    if (!e.target.files) {
+      return;
+    }
+    const file = e.target.files[0];
+    const previewUrl = URL.createObjectURL(event.target.files[0]);
+    setFileName(file);
+    setPreviewImage(previewUrl);
+  };
+
+  const clearInputs = () => {
+    setFileName("");
+    setPreviewImage("");
+    setTextInput("");
+  };
+
   const handleSubmit = async () => {
     if (textInput === "") {
       return setTextFieldError("Please enter a text prompt");
     }
-    setTextInput("");
+
+    let formData = new FormData();
+    formData.append("file", fileName);
+    formData.append("status", "pending");
+    formData.append("textPrompt", textInput);
     await fetch("/api/generate-image-disco", {
       method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ textPrompt: textInput, status: "pending" }),
+      body: formData,
     });
+
     setTimeout(async () => {
       const updateImages = await fetch("/api/fetch-recent-images", {
         method: "GET",
@@ -116,6 +146,8 @@ export default function Home(props) {
       const finalUpdatedImages = await updateImages.json();
       setRecentImages(finalUpdatedImages.images.slice(0, 10));
     }, 2000);
+
+    clearInputs();
   };
 
   return (
@@ -208,6 +240,45 @@ export default function Home(props) {
                       },
                     }}
                   />
+                </Grid>
+                <Grid item>
+                  {previewImage && (
+                    <PreviewUploadImage
+                      src={previewImage}
+                      srcSet={previewImage}
+                      loading="lazy"
+                    />
+                  )}
+                </Grid>
+                <Grid item>
+                  <Button
+                    component="label"
+                    variant="outlined"
+                    startIcon={<AddPhotoAlternateIcon />}
+                    sx={{
+                      marginRight: "1rem",
+                      color: "black",
+                      borderColor: "black",
+                      "&:hover": {
+                        color: "black",
+                        borderColor: "black",
+                      },
+                    }}
+                  >
+                    Upload Image
+                    <input
+                      type="file"
+                      accept="image"
+                      hidden
+                      onChange={handleFileUpload}
+                    />
+                  </Button>
+
+                  {fileName && (
+                    <Box sx={{ paddingTop: "1rem", paddingBottom: "1rem" }}>
+                      {fileName.name}
+                    </Box>
+                  )}
                 </Grid>
                 <Grid item>
                   <StyledButton
