@@ -11,7 +11,6 @@ const apiReducer = (state = {}, action) => {
         game: { ...state.game, steps: action.payload },
       };
     case "INCREMENT_CURRENT_STEP":
-      console.log("increment me");
       return {
         ...state,
         game: { ...state.game, currentStep: state.game.currentStep + 1 },
